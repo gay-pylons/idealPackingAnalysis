@@ -1,0 +1,79 @@
+Outline
+
++ Abstract
+
++ Introduction
+
+	-abridged history of search for ideal Glass
+		-Kauzman point, Patrick Royall Paper: provides motivation for belief that ideal glass exists
+		-Challenge: Relaxation times diverge in glass phase, difficult to experimentally separate slow-flow liquid from glass phase
+		-difficult to pin down theoretic hard line in relaxation time
+		-Experimental Searches
+			-laboratory observations
+			-ambers and similar (attempts to circumvent long relaxation time using 'experiment' with starting point millions years ago
+		-Computational Searches
+			-using computational models of amorphous materials to bypass relaxation times
+			-Swap monte-carlo: allowing energetically favorable particle position swaps
+				-likehood of finding favorable swaps decreases with packing energy, leading to floor gated by computation time
+				-boltzmann factor probability of swap provides easy thermodynamics
+			-FIRE, Gradient Descent, etc.
+				-algorithms find bottom of local well to varying degrees of accuracy
+			-FIRE Augmented w/ radial DOF
+				-approach 
+	-related topics in field
+		-the jamming transition in athermal packings n shit
+		-other packing-related projects
++ Methods
+	-Big picture of method:
+		-computational circle packing gives perfect packing from triangulation
+		-use pre-existing tools to produce triangulations so we can comp.circlePack
+         -Recipe for Ideal Packing using CirclePack algorithm
+		-produce delaunay triangulated network: must 'fit' properly in 2D
+			-start with 2D packing of desired number of particles
+				-starting polydispersity .2
+				-starting packing fraction of .915
+					-chosen to make radMin packings fully coordinated
+			-minimize energy with desired algorithm
+				-Option 1: relax position and radii simultaneously (radMin).  This leads to a nearly triangulated packing (with defects of missing contacts, as described in Varda's PNAS.  Then use Radical Delaunay to find and fix those defects \ec{Do we need to use a jargony term for this?  I'm not sure about the answer}
+                    -I agree: I think we can just talk about removing gaps anyways.
+				-Option 2: relax position and use Delaunay Triangulation (posMin)
+				-Option 3: relax position and then relax radii until triangulated (posRadMin)
+					-May not discuss this one in final paper
+			-take triangulation (includes list of conections and relative orientations)
+		-run CirclePack algorithm on network
+			-recieve new sets of positions, radii, and lattice vectors, which are reintegrated into pcp \ec{Either here or later we should discuss how large or small the change in relative positions and radii between initial and final packings.  In fact, it would be cool to do something to visualize this, like a visual difference of packing or just a quiverplot of displacements?}
+			-new packings are at or (machine precision) slightly below jamming:
+				-new polydispersity and jamming fraction depend on protocol
+				-radmin: sigma=.25, phi=.911 (take more data on the precise number) \ec{Maybe plot some histograms?}
+				-posMin: sigma=.21, phi=.909
+
+		-next: Perform characterizations
+                -\ec{I imagine that this is where you describe how you compute the moduli, the modes, etc.  For most of this you can just get away with referencing previous papers.}
+
++ Results
+	Figures:
+		-coordination vs pressure on semilogx scale
+		-pressure scaling of moduli
+			-marginal packings for comparison
+			-n=128 -> 16384
+			-include indication of jamming pressure?
+	-Jamming density raised as compared to input packing
+		-sharper dropoff in number of contacts with decreasing packing fraction: occurs fairly constiently at .91
+	-circlePack fails for some packings: anecdotally seems to be 10-20
+ \% (currently unresolved but not mission critical to have exact characterization)
+	-distribution qualitatively correlates with *initial* minimization method
+	-size scaling of moduli per particle
+		-marginal('ordinary') packings: strong finite size effects (well known property)
+		-CirclePack('ideal') packings: appear to lack finite size effects above pressure E-6
+	-pressure scaling of moduli (complete for 1k)
+		-Circlepack scales with potential until next nearest neighbor threshhold.
+		-Difficult to get even pressure scaling for cp Packings (ongoing challenge) but ultimately doesn't matter much. p.IsostaticitySearch has difficulty converging (may be workable below P=1e-7)
+	-phi/psi-6 vector maps complete-ish
+		(working on making inset)
+	-Shear-banding (to do)
+		-notionally will shear packings to breaking point and measure d2Min. radMin packings suggest large elastic regime with no defects (sharp regime change between small and large d2Min, presumably).
+	-Density of States
+		Included for 8K
+	-Thermodynamics (to do) (Peter!)
+    -Hyperuniformity (to do) (Cam!)
+

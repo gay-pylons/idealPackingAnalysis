@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 38, in <module>
+    for filename in os.scandir(directory):
+FileNotFoundError: [Errno 2] No such file or directory: '4096/radMinPressureSweep2/radMin---arr'

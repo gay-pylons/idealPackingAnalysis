@@ -1,0 +1,39 @@
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 45, in <module>
+    p.load(filename.path)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packingMixins/packingFileIO.py", line 427, in load
+    loader(self, path + os.sep + fileName)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packingMixins/packingFileIO.py", line 79, in <lambda>
+    fileIO.load2DArray(fileName, dtype=np.quad)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packing.py", line 843, in setPositions
+    self, quadMath.numToCUDAQuad(positions)
+MemoryError: std::bad_alloc: cudaErrorInitializationError: initialization error
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 45, in <module>
+    p.load(filename.path)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packingMixins/packingFileIO.py", line 427, in load
+    loader(self, path + os.sep + fileName)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packingMixins/packingFileIO.py", line 79, in <lambda>
+    fileIO.load2DArray(fileName, dtype=np.quad)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packing.py", line 843, in setPositions
+    self, quadMath.numToCUDAQuad(positions)
+MemoryError: std::bad_alloc: cudaErrorInitializationError: initialization error
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  for_each: failed to synchronize: cudaErrorInitializationError: initialization error
+Traceback (most recent call last):
+  File "collectModuliLocust.py", line 45, in <module>
+    p.load(filename.path)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packingMixins/packingFileIO.py", line 427, in load
+    loader(self, path + os.sep + fileName)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packingMixins/packingFileIO.py", line 79, in <lambda>
+    fileIO.load2DArray(fileName, dtype=np.quad)
+  File "/home/vlum/code/pyCudaPacking/pyCudaPacking/packing.py", line 843, in setPositions
+    self, quadMath.numToCUDAQuad(positions)
+MemoryError: std::bad_alloc: cudaErrorInitializationError: initialization error
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  for_each: failed to synchronize: cudaErrorInitializationError: initialization error
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  for_each: failed to synchronize: cudaErrorInitializationError: initialization error
+/var/lib/slurm-llnl/slurmd/job3037440/slurm_script: line 13: 24969 Aborted                 (core dumped) python3 collectModuliLocust.py 4096/posMinPressureSweep2/posMin-$SLURM_ARRAY_TASK_ID
+/var/lib/slurm-llnl/slurmd/job3037439/slurm_script: line 13: 24971 Aborted                 (core dumped) python3 collectModuliLocust.py 4096/posMinPressureSweep2/posMin-$SLURM_ARRAY_TASK_ID
+/var/lib/slurm-llnl/slurmd/job3037431/slurm_script: line 13: 24972 Aborted                 (core dumped) python3 collectModuliLocust.py 4096/posMinPressureSweep2/posMin-$SLURM_ARRAY_TASK_ID

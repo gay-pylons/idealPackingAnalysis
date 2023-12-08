@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH --partition=gpu					### Partition
+#BATCH --job-name=collectModuli			### Job Name
+#SBATCH --output=collectModuli.out		### File in which to store job output
+#SBATCH --error=collectModuli.err		### File in which to store job error messages
+#SBATCH --time=1-00:00:00				### Wall clock time limit in Days-HH:MM:SS
+#SBATCH --nodes=1
+#SBATCH --array=0-9
+#SBATCH --ntasks-per-node=1		### Number of tasks to be launched per Node
+#SBATCH --gres=gpu:1
+#SBATCH --account=vlum		### Account used for job submission
+
+python3 collectModuliLocust.py ../idealPackingLibrary/4096/posMinPressureSweep2/posMin-$SLURM_ARRAY_TASK_ID
