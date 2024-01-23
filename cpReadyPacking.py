@@ -27,7 +27,7 @@ def writeCPShort(connectivity, N,loc,name):
 <CPdata>
 	<circlepacking name="{name}.p">\n"""
 
-	with open(f'./{N}/{loc}/{name}-cpfile.xmd', "w") as f:
+	with open(f'../idealPackingLibrary/{N}/{loc}/{name}-cpfile.xmd', "w") as f:
 		f.write (blob)
 		f.write('NODECOUNT: {:d}\n'.format(N))
 		f.write('FLOWERS:\n')
@@ -57,7 +57,7 @@ def writeCPShortSimple(connectivity, N,loc,name):
 <CPdata>
 	<circlepacking name="{name}.p">\n"""
 
-	with open(f'./{N}/{loc}/{name}-cpfile.xmd', "w") as f:
+	with open(f'{loc}/{name}-cpfile.xmd', "w") as f:
 		f.write (blob)
 		f.write('NODECOUNT: {:d}\n'.format(N))
 		f.write('FLOWERS:\n')
@@ -123,52 +123,49 @@ def simplePeriodicAngularSort(packing): #stripped back version for large packign
 		connectivity.append(neighbors[np.argsort(angList)].flatten())
 	return np.array(connectivity,dtype=object)
 
+def writePacking(path,phi,moments,disp = np.quad(.2)):
+	try:
+		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
+		p.load(path)
+		p.setRadConstraintMoments(moments)
+	except:
+		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
+		p.setRadConstraintMoments(moments)
+		p.setRandomPositions()
+		p.setLogNormalRadii(polyDispersity=disp)
+		p.setPhi(phi)
+	p.minimizeFIRE('1e-20')
+	p.save(path,overwrite=True)
+	return p
+
 #needs to run on radialDOFConstrainedMinimization
 if __name__ == '__main__':
 	n=int(sys.argv[1]) #first command is number of particles
 	name = str(sys.argv[2])
+	phiStr=str(sys.argv[3])
 #	moments=[-3,-2,-1,1,2,3,4,5,6]
 	moments=[-2,2,4]
+	phi=np.quad(phiStr)
 	try:
-		numPackings= int(sys.argv[3])
-		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
+		numPackings= int(sys.argv[4])
+	except:
+		numPackings= 0
+	if(numPackings>1):
 		for packno in range(numPackings):
-			try:
-				p.load(f'{n}/seedPackings(radMin)/{name}-{packno}')
-				p.setRadConstraintMoments(moments)
-			except:
-				p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
-				p.setRadConstraintMoments(moments)
-				p.setRandomPositions()
-				p.setLogNormalRadii(polyDispersity='0.2')
-				p.setPhi('.915')
-			p.minimizeFIRE('1e-20')
-			while(np.size(p.getContacts()) < 6*n):
+			packingPath=f'../idealPackingLibrary/{n}/seedPackings(radMin)/{name}{phiStr}-{packno}'
+			cpFilePath=f'../idealPackingLibrary/{n}/cpInputs'
+			p=writePacking(packingPath,phi,moments)
+			while(np.size(p.getContacts())<6*n):
 				p.setPhi(p.getPhi()*1.01)
 				p.minimizeFIRE('1e-20')
-			print(np.size(p.getContacts()))
-			p.save(f'{n}/seedPackings(radMin)/{name}-{packno}',overwrite=True)
 			p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
 			data=simplePeriodicAngularSort(p)
-			print(np.size(data))
-			writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',f'{name}-{packno}')
+			writeCPShortSimple(data, p.getNumParticles(),cpFilePath,f'{name}{phiStr}-{packno}')
 			print(packno)
-	except:
-		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=1, numParticles=n)
-		try:
-			p.load(f'{n}/seedPackings(radMin)/{name}')
-			p.setRadConstraintMoments(moments)
-		except:
-			p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=1, numParticles=n)
-			p.setRadConstraintMoments(moments)
-			p.setRandomPositions()
-			p.setLogNormalRadii(polyDispersity='0.2')
-			p.setPhi('.915')
-		p.minimizeFIRE('1e-20')
-		while(np.size(p.getContacts()) < 6*n):
-			p.setPhi(p.getPhi()*1.01)
-			p.minimizeFIRE('1e-20')
-		print(np.size(p.getContacts()))
-		p.save(f'{n}/seedPackings(radMin)/{name}',overwrite=True)
-		data = simplePeriodicAngularSort(p)
-		writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',f'{name}')
+	else:
+		path=f'../idealPackingLibrary/{n}/seedPackings(radMin)/{name}'
+		p=writePacking(path,phi,moments)
+		p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
+		data=simplePeriodicAngularSort(p)
+		writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',path)
+		print(packno)

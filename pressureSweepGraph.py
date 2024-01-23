@@ -13,18 +13,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 import npquad
 import matplotlib
+import plotColorList
 
+markerList=plotColorList.markerList
+posColor=plotColorList.posColor
+posRadColor=plotColorList.posRadColor
+posTriangColor=plotColorList.posTriangColor
+posRadTriangColor=plotColorList.posRadTriangColor
 strEnd='pressureWalk.npz'
-nArray=np.array([64,128,256,512,1024,2048])#,4096])#,8192])#,|16384])
+
+nArray=np.array([64,128,256,512,1024,2048,4096])#,8192])#,|16384])
 #nArray=np.array([4096])
 ax,fig=plt.subplots(3,1,sharex=True,figsize=(6,9))
 cIt = 0
 gradStart=np.array([.3,.7,.9])
 gradEnd=np.array([.8,.1,.7])
 for n in nArray:
-	nColor=gradStart*(len(nArray)-(1+cIt))/(len(nArray)-1)+gradEnd*cIt/(len(nArray)-1)
-	print(cIt/(len(nArray)-1)+(len(nArray)-(1+cIt))/(len(nArray)-1))
-	cIt += 1
+	pScale=n**2
+	bScale=n
+	sScale=n
+	zScale=n
+#	nColor=gradStart*(len(nArray)-(1+cIt))/(len(nArray)-1)+gradEnd*cIt/(len(nArray)-1)
+#	print(cIt/(len(nArray)-1)+(len(nArray)-(1+cIt))/(len(nArray)-1))
 	Ziso=4*(1-1/n)
 	pressureList=np.array([],dtype=np.quad)
 	bulkList=np.array([],dtype=np.quad)
@@ -41,9 +51,9 @@ for n in nArray:
 			shearList=np.concatenate((shearList,f['sMod']/bMax))
 			contactList=np.concatenate((contactList,f['ZmZiso']))
 	pOrder=np.argsort(pressureList)
-	fig[0].semilogx(pressureList[pOrder],bulkList[pOrder],'x',alpha=.2,color=nColor,fillstyle='none')
-	fig[1].loglog(pressureList[pOrder],shearList[pOrder],'x',alpha=.2,color=nColor,fillstyle='none')
-	fig[2].loglog(pressureList[pOrder],contactList[pOrder],'x',alpha=.2,color=nColor,fillstyle='none')
+	fig[0].loglog(pressureList[pOrder]*pScale,bulkList[pOrder]*bScale,markerList[cIt],alpha=.2,color=posRadTriangColor,fillstyle='none')
+	fig[1].loglog(pressureList[pOrder]*pScale,shearList[pOrder]*sScale,markerList[cIt],alpha=.2,color=posRadTriangColor,fillstyle='none')
+	fig[2].loglog(pressureList[pOrder]*pScale,contactList[pOrder]*zScale,markerList[cIt],alpha=.2,color=posRadTriangColor,fillstyle='none')
 	pressureList=[]
 	pressureList=np.array([],dtype=np.quad)
 	bulkList=np.array([],dtype=np.quad)
@@ -60,9 +70,9 @@ for n in nArray:
 			shearList=np.concatenate((shearList,f['sMod']/bMax))
 			contactList=np.concatenate((contactList,f['ZmZiso']))
 	pOrder=np.argsort(pressureList)
-	fig[0].semilogx(pressureList[pOrder],bulkList[pOrder],'+',alpha=.2,color=nColor,fillstyle='none')
-	fig[1].loglog(pressureList[pOrder],shearList[pOrder],'+',alpha=.2,color=nColor,fillstyle='none')
-	fig[2].loglog(pressureList[pOrder],contactList[pOrder],'+',alpha=.2,color=nColor,fillstyle='none')
+	fig[0].loglog(pressureList[pOrder]*pScale,bulkList[pOrder]*bScale,markerList[cIt],alpha=.2,color=posTriangColor,fillstyle='none')
+	fig[1].loglog(pressureList[pOrder]*pScale,shearList[pOrder]*sScale,markerList[cIt],alpha=.2,color=posTriangColor,fillstyle='none')
+	fig[2].loglog(pressureList[pOrder]*pScale,contactList[pOrder]*zScale,markerList[cIt],alpha=.2,color=posTriangColor,fillstyle='none')
 	pressureList=[]
 	bulkList=[]
 	shearList=[]
@@ -103,9 +113,9 @@ for n in nArray:
 	bulkList=np.array(bulkList)
 	shearList=np.array(shearList)
 	contactList=np.array(contactList)
-	fig[0].semilogx(pressureList,bulkList,'o',alpha=.7,fillstyle='none',color=nColor, label=f'$N={n}$',markeredgewidth='2')
-	fig[1].loglog(pressureList,shearList,'o',alpha=.7,fillstyle='none',color=nColor, label=f'$N={n}$',markeredgewidth='2')
-	fig[2].loglog(pressureList,contactList,'o',alpha=.7,fillstyle='none',color=nColor, label=f'$N={n}$',markeredgewidth='2')
+	fig[0].loglog(pressureList*pScale,bulkList*bScale,markerList[cIt],alpha=.7,fillstyle='none',color=posColor, label=f'$N={n}$',markeredgewidth='2')
+	fig[1].loglog(pressureList*pScale,shearList*sScale,markerList[cIt],alpha=.7,fillstyle='none',color=posColor, label=f'$N={n}$',markeredgewidth='2')
+	fig[2].loglog(pressureList*pScale,contactList*zScale,markerList[cIt],alpha=.7,fillstyle='none',color=posColor, label=f'$N={n}$',markeredgewidth='2')
 	pressureList=[]
 	bulkList=[]
 	shearList=[]
@@ -148,37 +158,38 @@ for n in nArray:
 	shearList=np.array(shearList)
 	contactList=np.array(contactList)
 #	print(shearList)
-	fig[0].semilogx(pressureList,bulkList,'^',alpha=.7,fillstyle='none',color=nColor, label=f'$N={n}$',markeredgewidth='2')
-	fig[1].loglog(pressureList,shearList,'^',alpha=.7,fillstyle='none',color=nColor, label=f'$N={n}$',markeredgewidth='2')
-	fig[2].loglog(pressureList,contactList,'^',alpha=.7,fillstyle='none',color=nColor, label=f'$N={n}$',markeredgewidth='2')
+	fig[0].loglog(pressureList*pScale,bulkList*bScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$',markeredgewidth='2')
+	fig[1].loglog(pressureList*pScale,shearList*sScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$',markeredgewidth='2')
+	fig[2].loglog(pressureList*pScale,contactList*zScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$',markeredgewidth='2')
+	cIt += 1
 f=np.load('../idealPackingLibrary/1554/hexCrystalPressureSweep/crystal-pressureWalk.npz')
 pOrder=np.argsort(f['press'])
-fig[0].semilogx(f['press'][pOrder],f['bMod'][pOrder],'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
-fig[1].loglog(f['press'][pOrder],f['sMod'][pOrder],'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
-fig[2].loglog(f['press'][pOrder],f['ZmZiso'][pOrder],'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
-plt.xlabel('$P$')
-fig[0].set_ylabel('$K/N$',fontsize='x-large')
-fig[1].set_ylabel('$G/N$',fontsize='x-large')
-fig[2].set_ylabel('$(Z-Z_{iso})/N$',fontsize='x-large')
-fig[0].set_ylim((0,4))
-fig[1].set_ylim((1e-4,3))
-plt.xlim((4e-7,7e-2))
+fig[0].loglog(f['press'][pOrder]*4012**2,f['bMod'][pOrder]*4012,'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
+fig[1].loglog(f['press'][pOrder]*4012**2,f['sMod'][pOrder]*4012,'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
+fig[2].loglog(f['press'][pOrder]*4012**2,f['ZmZiso'][pOrder]*4012,'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
+plt.xlabel('$P*N^2$',fontsize='xx-large')
+fig[0].set_ylabel('$K$',fontsize='xx-large')
+fig[1].set_ylabel('$G$',fontsize='xx-large')
+fig[2].set_ylabel('$(Z-Z_{iso})$',fontsize='xx-large')
+#fig[0].set_ylim((5e+1,5e+4))
+fig[1].set_ylim((5e-2,5e+3))
+#plt.xlim((4e-7,7e-2))
 nListStr=','.join(nArray.astype(str))
 #fig[0].title.set_text(f'Pressure Sweep n={nListStr}')
 plt.tight_layout()
 plt.subplots_adjust(hspace=0)
-fig[0].tick_params(axis='x',which='major',direction='inout',length=14)
+fig[0].tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 fig[0].tick_params(axis='x',which='minor',direction='inout',length=10)
-fig[1].tick_params(axis='x',which='major',direction='inout',length=14)
+fig[1].tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 fig[1].tick_params(axis='x',which='minor',direction='inout',length=10)
-fig[2].tick_params(axis='x',which='major',direction='inout',length=14,labelsize='large')
+fig[2].tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 fig[2].tick_params(axis='x',which='minor',direction='inout',length=10)
-fig[0].tick_params(axis='y',which='major',length=10,labelsize='large')
-fig[0].tick_params(axis='y',which='minor',length=5)
-fig[1].tick_params(axis='y',which='major',length=10,labelsize='large')
-fig[1].tick_params(axis='y',which='minor',length=5)
-fig[2].tick_params(axis='y',which='major',length=10,labelsize='large')
-fig[2].tick_params(axis='y',which='minor',length=5)
+fig[0].tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')
+fig[0].tick_params(axis='y',which='minor',direction='in',length=5)
+fig[1].tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')
+fig[1].tick_params(axis='y',which='minor',direction='in',length=5)
+fig[2].tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')
+fig[2].tick_params(axis='y',which='minor',direction='in',length=5)
 #plt.legend(fontsize=11)
 ax.savefig('../idealPackingLibrary/figures/moduliWalk.pdf')
 ax.savefig('../idealPackingLibrary/figures/moduliWalk.png')

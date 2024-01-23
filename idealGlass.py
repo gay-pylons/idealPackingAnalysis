@@ -160,7 +160,7 @@ def computeAverageSofK(packingList, kbin = None, deviceNumber=2, latticeVectors=
 	structureFactors = []
 	for packingDir in packingList:
 		try:
-			sFactors=pcp.fileIO.load2DArray(f'{packingDir}/sFactors/sOfK.dat',np.quad)
+			sFactors=pcp.fileIO.load2DArray(f'{packingDir}/sOfK.dat',np.quad)
 		except:
 			p = pcp.Packing(deviceNumber=deviceNumber)
 			p.load(packingDir)
@@ -171,6 +171,6 @@ def computeAverageSofK(packingList, kbin = None, deviceNumber=2, latticeVectors=
 				 lvPos = np.dot(ilv, p.getPositions().T).T
 				 p.setPositions(lvPos.copy())
 			sFactors=struct.computeBinnedStructureFactor(p, kbin)
-			pcp.save2DArray(pcp.fileIO.save2DArray(f'{packingDir}/sFactors/sOfK.dat'),sFactors)
+			pcp.fileIO.save2DArray(f'{packingDir}/sOfK.dat',sFactors)
 		structureFactors.append(sFactors)
 	return structureFactors

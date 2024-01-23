@@ -5,13 +5,16 @@ Created on Mon Sep 18 18:00:15 2023
 
 @author: violalum
 """
+import matplotlib
+matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
+import matplotlib.pyplot as plt
 import imp
 pcp=imp.load_source('pyCudaPacking','/home/violalum/Documents/code/pcpMaster/pyCudaPacking/__init__.py')
 import numpy as np
 import npquad
 import idealGlass
 import cpRandomDelaunayTriangulation as cp
-import matplotlib.pyplot as plt
+import matplotlib.cbook
 import matplotlib
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import math
@@ -66,17 +69,16 @@ def colorMaprTheta2(length,angle):
 def drawBox(corner1,corner2):
 	xCoords=np.array([corner1[0],corner2[0],corner2[0],corner1[0],corner1[0]])
 	yCoords=np.array([corner1[0],corner1[0],corner2[0],corner2[0],corner1[0]])
-	plt.plot(xCoords,yCoords,'-',color=[0,0,0])
+	plt.plot(xCoords,yCoords,'-',color=[0,0,0],linewidth=1)
+
 
 def makePhi6Colors2(p):
 	phi = p.getPhi()
 	p.setPhi(np.quad(.1)+phi)
 	cv = cp.delaunayVectors(p)
-#	print(cv)
 	p.setPhi(phi)
 	contactVecs = cv.data.reshape(len(cv.data)//2,2).astype(float)
 	thetas = np.arctan2(contactVecs[:,1], contactVecs[:,0])
-	#NOTE: This will fail if there are rattlers!
 	iVals = cv.row.reshape(len(cv.row)//2,2)[:,0]
 	numContacts = np.bincount(iVals, minlength = p.getNumParticles())
 	phi6 = np.zeros(len(numContacts), dtype=complex)
@@ -94,14 +96,13 @@ def makeSizeColors(p):
 	dropScale=np.array([.3,.7,.1])
 	return [zeroSize-r*dropScale for r in normedRadii]
 
-def makePhi6Vectors(p):
+def makePhi6Vectors(p): # pulled from idealGlass.py I think: modified to use delaunay vectors instead of contact vectors
 	phi = p.getPhi()
 	p.setPhi(np.quad(.1)+phi)
 	cv = cp.delaunayVectors(p)
 	p.setPhi(phi)
 	contactVecs = cv.data.reshape(len(cv.data)//2,2).astype(float)
 	thetas = np.arctan2(contactVecs[:,1], contactVecs[:,0])
-	#NOTE: This will fail if there are rattlers!
 	iVals = cv.row.reshape(len(cv.row)//2,2)[:,0]
 	numContacts = np.bincount(iVals, minlength = p.getNumParticles())
 	phi6 = np.zeros(len(numContacts), dtype=complex)
@@ -113,36 +114,49 @@ def loadPack(p,directory): #Loads packing from directory into p and attempts to 
 	p.load(directory)
 	try:
 		lv=np.loadtxt(f'{directory}/latticeVectors.dat')
-		lv1Norm=lv[0]/np.sqrt(np.dot(lv[0],lv[0]))
-		#print(lv1Norm)
-		rotationMatrix= np.array([[lv1Norm[0],lv1Norm[1]],[-lv1Norm[1],lv1Norm[0]]])
-		newVec=np.matmul(rotationMatrix.transpose(),lv)
-	#	print(newVec)
-		p.setLatticeVectors(newVec)
-		p.setPositions(np.dot(p.getPositions(),rotationMatrix))
-		p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
-		p.minimizeFIRE('1e-20')
 	except:
-		p.minimizeFIRE('1e-20')
+		lv=np.array([[1,0],[0,1]])
+	lv1Norm=lv[0]/np.sqrt(np.dot(lv[0],lv[0]))
+	rotationMatrix= np.array([[lv1Norm[0],lv1Norm[1]],[-lv1Norm[1],lv1Norm[0]]])
+	newVec=np.matmul(rotationMatrix.transpose(),lv)
+	p.setLatticeVectors(newVec)
+	p.setPositions(np.dot(p.getPositions(),rotationMatrix))
+	p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
+	p.minimizeFIRE('1e-20')
 
 if __name__ == '__main__':
-	n=4096
-	directories=['finishedPackings/posMin-1',f'finishedPackings/idealPack{n}-1','posMin/posMin-1','radMin/radMin-1']
+	n=1024
+	directories=['finishedPackings/posMin-1',f'finishedPackings/idealPack{n}-1','posMin/posMin-1/isostatic','radMin/radMin-1/isostatic']
 	for directory in directories:
+		fig, ax=plt.subplots()
 		p = pcp.Packing()
 		loadPack(p,f'../idealPackingLibrary/{n}/{directory}')#switch back to 4k after finishing this test
-		print(p.getPhi())
-		colorMap=np.array(makePhi6Colors2(p))#/np.array([1.2,1.4,1])
-		fig = plt.figure()
-		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=None,alpha=1)
+		colorMap=np.array(makePhi6Colors2(p))
 		xy=p.getPositions().transpose().astype(float)
 		arrows=makePhi6Vectors(p)
-		plt.axis('off')
-		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=None,alpha=1)
-		plt.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy')
-		plt.savefig(f'../idealPackingLibrary/{n}/{directory}-Phi6vector.pdf',bbox_inches='tight',pad_inches=0)
-		plt.savefig(f'../idealPackingLibrary/{n}/{directory}-Phi6vector.png',bbox_inches='tight',pad_inches=0)
+		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=[.5,.5,.5],alpha=1,axis=ax,lineWidth=.25)
+		ax.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy',scale=np.sqrt(n))
+		ax.axis('off')
+		
+		#inset axes: based on matplotlib docs
+		x1, x2, y1, y2 = .3, .4, .3, .4 # subregion of the original image
+		axins = ax.inset_axes([0.5, 0.5, 0.5, 0.5],xlim=(x1, x2), ylim=(y1, y2), xticklabels=[], yticklabels=[])
+		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=[.5,.5,.5],alpha=1,axis=axins,xBounds=[x1,x2],yBounds=[y1,y2],lineWidth=1)
+		axins.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy',scale=np.sqrt(n)*(x2-x1)/.75,width=.02)
+		axins.set_aspect('equal')#'box')
+		axins.get_xaxis().set_visible(False)
+		axins.get_yaxis().set_visible(False)
+		ax.indicate_inset_zoom(axins, edgecolor=[.3,.3,.3],linewidth=2,alpha=1)
+#		plt.show()
+		figName=directory.split('/')[0]+'.'+directory.split('/')[1]
+		fig.tight_layout(pad=0,w_pad=0,h_pad=0)
+		[x.set_linewidth(2) for x in axins.spines.values()]
+		[x.set_color([.3,.3,.3]) for x in axins.spines.values()]
+#		plt.show()
+		fig.savefig(f'../idealPackingLibrary/figures/{n}.{figName}-Phi6vector.pdf',pad_inches=0)
+		fig.savefig(f'../idealPackingLibrary/figures/{n}.{figName}-Phi6vector.png',pad_inches=0)#,bbox_inches='tight',pad_inches=0)
 		plt.clf()
+		plt.close()
 # =============================================================================
 # 	plt.clf()
 # 	fig = plt.figure()

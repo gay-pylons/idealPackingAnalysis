@@ -11,7 +11,7 @@ from importlib.machinery import SourceFileLoader
 import sys
 import matplotlib.pyplot as plt
 # imports the module from the given path
-pcp = SourceFileLoader("pyCudaPacking","/home/vlum/code/pyCudaPacking/pyCudaPacking/__init__.py").load_module()
+pcp = SourceFileLoader("pyCudaPacking","/home/violalum/Documents/code/pcpMaster/pyCudaPacking/__init__.py").load_module()
 i=0
 def moduliPerParticle(packing,pName):
 	shearStrain = np.array([0,1,0,0])

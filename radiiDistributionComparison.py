@@ -11,6 +11,13 @@ from modRatioVsN import moduliPerParticlePressure
 from matplotlib import pyplot as plt
 import matplotlib
 import scipy
+import plotColorList
+
+markerList=plotColorList.markerList
+posColor=plotColorList.posColor
+posRadColor=plotColorList.posRadColor
+posTriangColor=plotColorList.posTriangColor
+posRadTriangColor=plotColorList.posRadTriangColor
 
 def HistogramFromRadii(radii,nBins=10):
 	maxRadius=np.max(radii)*1.01
@@ -48,23 +55,23 @@ filename2=f'idealPack{n}'
 filename3='radMin'
 for i in range(maxIndex):
 	p = pcp.Packing()
-	p.load(f'{n}/finishedPackings/{filename}-{i}')
+	p.load(f'../idealPackingLibrary/{n}/finishedPackings/{filename}-{i}')
 	poscpRadii.append(p.getRadii())
 	phi.append(p.getPhi())
 phi=np.array(phi,dtype=float)
 for i in range(1,maxIndex):
 	p = pcp.Packing()
-	p.load(f'{n}/finishedPackings/{filename2}-{i}')
+	p.load(f'../idealPackingLibrary/{n}/finishedPackings/{filename2}-{i}')
 	p.setPhi(np.mean(phi))
 	posradcpRadii.append(p.getRadii())
 for i in range(1,maxIndex):
 	p = pcp.Packing()
-	p.load(f'{n}/posMin/{filename}-{i}')
+	p.load(f'../idealPackingLibrary/{n}/posMin/{filename}-{i}')
 	p.setPhi(np.mean(phi))
 	posRadii.append(p.getRadii())
 for i in range(1,maxIndex):
 	p = pcp.Packing()
-	p.load(f'{n}/radMin/{filename3}-{i}')
+	p.load(f'../idealPackingLibrary/{n}/radMin/{filename3}-{i}')
 	p.setPhi(np.mean(phi))
 	posradRadii.append(p.getRadii())
 normFactor=(np.mean(phi)/(n*np.pi))**.5
@@ -79,30 +86,36 @@ polyX2,polyY2=logNormalPlot(poscpRadii,n, phi=np.mean(phi).astype(float),sigma=.
 
 plt.semilogy(polyX/np.mean(posRadii),polyY*np.mean(posRadii),color='black',alpha=.5)
 
-hist,bin_edges=np.histogram(poscpRadii/np.mean(poscpRadii),density=True,bins=binno)
-bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-o',alpha=.7,color=[.8,.1,.7],label='posTriang')
-
 hist,bin_edges=np.histogram(posradcpRadii/np.mean(posradcpRadii),density=True,bins=binno)
 bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-^',alpha=.7,color=[.3,.7,.8],label='posRadTriang')
+plt.semilogy(bin_centers,hist,'-x',alpha=.7,color=posRadTriangColor,label='posRadTriang',fillstyle='none')
+
+hist,bin_edges=np.histogram(poscpRadii/np.mean(poscpRadii),density=True,bins=binno)
+bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
+plt.semilogy(bin_centers,hist,'-+',alpha=.7,color=posTriangColor,label='posTriang',fillstyle='none')
 
 hist,bin_edges=np.histogram(posRadii/np.mean(posRadii),density=True,bins=binno)
 bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-x',alpha=.7,color=[.8,.5,.7],label='pos')
+plt.semilogy(bin_centers,hist,'-o',alpha=.7,color=posColor,label='pos',fillstyle='none')
 
 hist,bin_edges=np.histogram(posradRadii/np.mean(posradRadii),density=True,bins=binno)
 bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-+',alpha=.7,color=[.6,.7,.8],label='posTriang')
+plt.semilogy(bin_centers,hist,'-^',alpha=.7,color=posRadColor,label='posRad',fillstyle='none')
 
-plt.xlabel('$R/R_{rms}$',fontsize='x-large')
-plt.ylabel('$P(R/R_{rms})$',fontsize='x-large')
+plt.tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
+plt.tick_params(axis='x',which='minor',direction='inout',length=10)
+plt.tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')
+plt.tick_params(axis='y',which='minor',direction='in',length=5)
+
+plt.xlabel('$R/R_{rms}$',fontsize='xx-large')
+plt.ylabel('$P(R/R_{rms})$',fontsize='xx-large')
+plt.tight_layout()
 #plt.legend(loc='upper center', bbox_to_anchor=(0.5, -.15),
 #          fancybox=True, shadow=True, ncol=10)
 #plt.legend()
 #plt.title(f'{maxIndex} systems of {n} particles, pos->CirclePack')
 plt.xlim(0,2.5)
 plt.yscale('log')
-plt.savefig(f'figures/{n}DistComp.pdf')
-plt.savefig(f'figures/{n}DistComp.png')
+plt.savefig(f'../idealPackingLibrary/figures/{n}DistComp.pdf')
+plt.savefig(f'../idealPackingLibrary/figures/{n}DistComp.png')
 plt.show()
