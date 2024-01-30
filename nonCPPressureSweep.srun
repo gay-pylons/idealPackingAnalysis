@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --partition=gpu					### Partition
+#BATCH --job-name=NCPpressureSweep			### Job Name
+#SBATCH --output=NCPpressureSweep.out		### File in which to store job output
+#SBATCH --error=NCPpressureSweep.err		### File in which to store job error messages
+#SBATCH --time=14-00:00:00				### Wall clock time limit in Days-HH:MM:SS
+#SBATCH --nodes=1
+#SBATCH --array=0-19
+#SBATCH --ntasks-per-node=1		### Number of tasks to be launched per Node
+#SBATCH --gres=gpu:1
+#SBATCH --account=vlum		### Account used for job submission
+
+if [$SLURM_ARRAY_TASK_ID -lt 10 ];
+	then python3 radMinPressureSweepLocust.py 8192 posMin-$SLURM_ARRAY_TASK_ID;
+	else python3 posMinPressureSweepLocust.py 8192 radMin-$(SLURM_ARRAY_TASK_ID-10);
+fi

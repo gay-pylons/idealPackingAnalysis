@@ -29,7 +29,7 @@ if __name__ == '__main__':
 			p.setPhi(phi)
 			p.minimizeFIRE('1e-20')
 			print(p.getPressure())
-			p.save(f'{n}/radMin/{name}-{packno}',overwrite=True)
+			p.save(f'../idealPackingLibrary/{n}/radMin/{name}-{packno}',overwrite=True)
 			print(packno)
 	except:
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=1, numParticles=n)
@@ -40,4 +40,4 @@ if __name__ == '__main__':
 		p.minimizeFIRE('1e-20')
 		print(p.getPressure())
 		print(packno)
-		p.save(f'{n}/radMin/{name}',overwrite=True)
+		p.save(f'../idealPackingLibrary/{n}/radMin/{name}',overwrite=True)

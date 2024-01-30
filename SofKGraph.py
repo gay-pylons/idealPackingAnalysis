@@ -21,31 +21,33 @@ posRadColor=plotColorList.posRadColor
 posTriangColor=plotColorList.posTriangColor
 posRadTriangColor=plotColorList.posRadTriangColor
 
-nArray=[64,128,256,512,1024,2048,4096]#,8192]#,16384,32768]
+nArray=[64,128,256,512,1024,2048,4096,8192]#,16384,32768]
 
 cIt=0
-for n in nArray:
-	directory=f'../idealPackingLibrary/{n}/posMin/posMin'
-	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
-	packingDirs= [f'{directory}-{i}/isostatic' for i in range(10)]
-	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=False)
-#	print(sOfK)
-	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
-#	sOfKStd=
-	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posColor,alpha=.5)
-	cIt+=1
-cIt=0
-for n in nArray:
-	directory=f'../idealPackingLibrary/{n}/radMin/radMin'
-	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
-	packingDirs= [f'{directory}-{i}/isostatic' for i in range(10)]
-	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=False)
-#	print(sOfK)
-	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
-#	sOfKStd=
-	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posRadColor,alpha=.5)
-	cIt+=1
-cIt=0
+# =============================================================================
+# for n in nArray:
+# 	directory=f'../idealPackingLibrary/{n}/posMin/posMin'
+# 	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
+# 	packingDirs= [f'{directory}-{i}/isostatic' for i in range(10)]
+# 	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=False)
+# #	print(sOfK)
+# 	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
+# #	sOfKStd=
+# 	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posColor,alpha=.5)
+# 	cIt+=1
+# cIt=0
+# for n in nArray:
+# 	directory=f'../idealPackingLibrary/{n}/radMin/radMin'
+# 	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
+# 	packingDirs= [f'{directory}-{i}/isostatic' for i in range(10)]
+# 	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=False)
+# #	print(sOfK)
+# 	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
+# #	sOfKStd=
+# 	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posRadColor,alpha=.5)
+# 	cIt+=1
+# cIt=0
+# =============================================================================
 for n in nArray:
 	directory=f'../idealPackingLibrary/{n}/finishedPackings/idealPack{n}'
 	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
