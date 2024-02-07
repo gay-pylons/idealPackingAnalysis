@@ -10,4 +10,4 @@
 #SBATCH --gres=gpu:1
 #SBATCH --account=vlum		### Account used for job submission
 
-python3 collectModuliLocust.py ../idealPackingLibrary/4096/posMinPressureSweep2/posMin-$SLURM_ARRAY_TASK_ID
+python3 2-collectModuliLocust.py ../idealPackingLibrary/4096/posMinPressureSweep2/posMin-$SLURM_ARRAY_TASK_ID

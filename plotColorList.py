@@ -10,7 +10,7 @@ markerList=['1','s','p','v','*','+','o']
 posColor=[1,.6,.4]
 posRadColor=[.5,.6,.8]
 posTriangColor=[.05,.4,.35]
-posRadTriangColor=[.6,.1,.4]
+posRadTriangColor=[.8,.2,.6]
 #	posCPColor=#	posRadCPColor=
 #	posColor=
 #	posRadColor=
