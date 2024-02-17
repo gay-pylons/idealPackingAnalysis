@@ -27,7 +27,7 @@ def writeCPShort(connectivity, N,loc,name):
 <CPdata>
 	<circlepacking name="{name}.p">\n"""
 
-	with open(f'../idealPackingLibrary/{N}/{loc}/{name}-cpfile.xmd', "w") as f:
+	with open(f'{loc}/{name}-cpfile.xmd', "w") as f:
 		f.write (blob)
 		f.write('NODECOUNT: {:d}\n'.format(N))
 		f.write('FLOWERS:\n')
@@ -44,36 +44,6 @@ def writeCPShort(connectivity, N,loc,name):
 </CP_Scriptfile>
 		""")
 		
-def writeCPShortSimple(connectivity, N,loc,name):
-	blob = f"""<?xml version="1.0"?>
-	
-<CP_Scriptfile date="Apr 17, 2022">
-<CPscript title="manual CP save" >
-<text> process packing into circlepack; repack n=100000 </text>
-<cmd iconname="amarok.png">act 0;Cleanse;Map 0 1;infile_read {name}.p;set_aim -d;alpha 10;newRed -t;repack 100000;layout -c;set_screen -a;Disp -w -C -Ra; </cmd>
-<text> saves packing and lattice vectors </text>
-<cmd>output :: Mob ::a b :: -f ~/Documents/code/idealPackingLibrary/{n}/latVecs/{name}-latVecs.dat;Write -cgrz ~/Documents/code/idealPackingLibrary/{n}/cpOutputs/{name}.p-dc</cmd>
-	</CPscript>
-<CPdata>
-	<circlepacking name="{name}.p">\n"""
-
-	with open(f'{loc}/{name}-cpfile.xmd', "w") as f:
-		f.write (blob)
-		f.write('NODECOUNT: {:d}\n'.format(N))
-		f.write('FLOWERS:\n')
-		# write the connectivity
-		
-		for i in range(len(connectivity)):
-			f.write(str(i+1)+' ')
-			f.write(str(len(connectivity[i]))+' ')
-			f.write(' '.join(list(map(str,connectivity[i]+1)))+' ')
-			f.write(str(connectivity[i][0]+1)+'\n')
-
-		f.write("""	</circlepacking>
-  </CPdata>
-</CP_Scriptfile>
-		""")
-
 def PeriodicAngularSort(coordinates, bonds, basis):#-np.transpose(vex))
 	# Using PBCs, find the correct neighbors and sort them around a vertex.
 	sites = {}
@@ -111,9 +81,21 @@ def PeriodicAngularSort(coordinates, bonds, basis):#-np.transpose(vex))
 		angles[index] = angle[sortedarg]
 	return sites, angles
 
-def simplePeriodicAngularSort(packing): #stripped back version for large packigns and stuff
-	contacts=packing.getContacts()
-	vecList=packing.getContactVectors().astype(float).tocsr()
+def delaunayVectors(packing): #in future: unite delaunayPASort and delaunayVectors (single sweep)
+	longVectors=packing.getContactVectors(gap=np.quad(.3).astype(float).tocsr()
+	try:
+		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors(radical=True))
+		print('radical success dude!')
+	except:
+		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors())
+		print('radical failure dude!')
+	delVectors=scipy.sparse.csr_matrix((packing.getNumParticles(),2*packing.getNumParticles()), dtype=float)
+	delVectors[delaunay.row,2*delaunay.col]=longVectors[delaunay.row,2*delaunay.col]
+	delVectors[i,2*delaunay.col+1]=longVectors[i,2*delaunay.col+1]
+	return delaunay,delVectors
+
+def delaunayPeriodicAngularSort(packing): #stripped back version for large packigns and stuff
+	contacts,vecList=delaunayVectors(packing)
 	connectivity=[]
 	for i in range(packing.getNumParticles()):
 		neighbors=contacts[i].indices
@@ -123,49 +105,71 @@ def simplePeriodicAngularSort(packing): #stripped back version for large packign
 		connectivity.append(neighbors[np.argsort(angList)].flatten())
 	return np.array(connectivity,dtype=object)
 
-def writePacking(path,phi,moments,disp = np.quad(.2)):
+#Identical to cpReadyPacking version: copied, since it fails when imported
+def writeCPShortSimple(connectivity, N,loc,name):
+	blob = f"""<?xml version="1.0"?>
+	
+<CP_Scriptfile date="Apr 17, 2022">
+<CPscript title="manual CP save" >
+<text> process packing into circlepack; repack n=100000 </text>
+<cmd iconname="amarok.png">act 0;Cleanse;Map 0 1;infile_read {name}.p;set_aim -d;alpha 10;newRed -t;repack 100000;layout -c;set_screen -a;Disp -w -C -Ra; </cmd>
+<text> saves packing and lattice vectors </text>
+<cmd>output :: Mob ::a b :: -f ~/Documents/code/idealPackingLibrary/{n}/latVecs/{name}-latVecs.dat;Write -cgrz ~/Documents/code/idealPackingLibrary/{n}/cpOutputs/{name}.p-dc</cmd>
+	</CPscript>
+<CPdata>
+	<circlepacking name="{name}.p">\n"""
+
+	with open(f'{loc}/{name}-cpfile.xmd', "w") as f:
+		f.write (blob)
+		f.write('NODECOUNT: {:d}\n'.format(N))
+		f.write('FLOWERS:\n')
+		# write the connectivity
+		
+		for i in range(len(connectivity)):
+			f.write(str(i+1)+' ')
+			f.write(str(len(connectivity[i]))+' ')
+			f.write(' '.join(list(map(str,connectivity[i]+1)))+' ')
+			f.write(str(connectivity[i][0]+1)+'\n')
+
+		f.write("""	</circlepacking>
+  </CPdata>
+</CP_Scriptfile>
+		""")
+
+def writePackingToCP(n,packingPath,cpPath,name,index,phi):
 	try:
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
-		p.load(path)
-		p.setRadConstraintMoments(moments)
+		p.load(f'{packingPath}/{name}{phi}-{index}')
 	except:
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
-		p.setRadConstraintMoments(moments)
 		p.setRandomPositions()
-		p.setLogNormalRadii(polyDispersity=disp)
-		p.setPhi(phi)
+		p.setLogNormalRadii(polyDispersity='0.2')
+		p.setPhi(np.quad(phi))
 	p.minimizeFIRE('1e-20')
-	p.save(path,overwrite=True)
-	return p
+	p.save(f'{packingPath}/{name}{phi}-{index}',overwrite=True)
+	p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
+	data = delaunayPeriodicAngularSort(p)
+	writeCPShortSimple(data, p.getNumParticles(),cpPath,f'{name}{phi}-{packno}')
 
-#needs to run on radialDOFConstrainedMinimization
 if __name__ == '__main__':
 	n=int(sys.argv[1]) #first command is number of particles
 	name = str(sys.argv[2])
-	phiStr=str(sys.argv[3])
-#	moments=[-3,-2,-1,1,2,3,4,5,6]
-	moments=[-2,2,4]
-	phi=np.quad(phiStr)
+	try:
+		phi=str(sys.argv[3])
+	except:
+		'.915'
 	try:
 		numPackings= int(sys.argv[4])
 	except:
 		numPackings= 0
+	try:
+		i=int(sys.argv[5])
+	except:
+		i='0'
+	packingPath=f'../idealPackingLibrary/{n}/seedPackings(radMin)'
+	cpPath=f'../idealPackingLibrary/{n}/cpInputs'
 	if(numPackings>1):
 		for packno in range(numPackings):
-			packingPath=f'../idealPackingLibrary/{n}/seedPackings(radMin)/{name}{phiStr}-{packno}'
-			cpFilePath=f'../idealPackingLibrary/{n}/cpInputs'
-			p=writePacking(packingPath,phi,moments)
-			while(np.size(p.getContacts())<6*n):
-				p.setPhi(p.getPhi()*1.01)
-				p.minimizeFIRE('1e-20')
-			p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
-			data=simplePeriodicAngularSort(p)
-			writeCPShortSimple(data, p.getNumParticles(),cpFilePath,f'{name}{phiStr}-{packno}')
-			print(packno)
+			writePackingToCP(n,packingPath,cpPath,name,packno,phi)
 	else:
-		path=f'../idealPackingLibrary/{n}/seedPackings(radMin)/{name}'
-		p=writePacking(path,phi,moments)
-		p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
-		data=simplePeriodicAngularSort(p)
-		writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',path)
-		print(packno)
+		writePackingToCP(n,packingPath,cpPath,name,i,phi)

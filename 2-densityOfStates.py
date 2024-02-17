@@ -38,7 +38,7 @@ def getCPDoS(directory,numPackings,peakPressure=np.quad('1e-2')): #direct toward
 		np.savetxt(f'{directory}.DoS.xmd',states)
 		return states
 
-def getOrdinaryDoS(directory,numPackings,pressureCutoff=np.quad('1e-6')):
+def getOrdinaryDoS(directory,numPackings,pressureCutoff=np.quad('1e-8')):
 	try:
 		states=np.load(f'{directory}.DoS.npy')
 		return states

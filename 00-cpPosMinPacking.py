@@ -19,15 +19,16 @@ import scipy.sparse
 
 #returns delaunay triangulation vectors
 def delaunayVectors(packing): #in future: unite delaunayPASort and delaunayVectors (single sweep)
-	longVectors=packing.getContactVectors(gap=np.quad(np.sqrt(2))).astype(float).tocsr()
-	delaunay=packing.delaunayNeighbors()#radical=True)
+	longVectors=packing.getContactVectors(gap=np.quad(.3).astype(float)).tocsr()
+	try:
+		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors(radical=True))
+		print('radical success dude!')
+	except:
+		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors())
+		print('radical failure dude!')
 	delVectors=scipy.sparse.csr_matrix((packing.getNumParticles(),2*packing.getNumParticles()), dtype=float)
-	for i in range(packing.getNumParticles()):
-		for j in delaunay[i].indices:
-			delVectors[i,2*j]=longVectors[i,2*j]
-			delVectors[i,2*j+1]=longVectors[i,2*j+1]
-	print(delVectors[i].data)
-	print(packing.getContactVectors().astype(float).tocsr()[i].data)
+	delVectors[delaunay.row,2*delaunay.col]=longVectors[delaunay.row,2*delaunay.col]
+	delVectors[i,2*delaunay.col+1]=longVectors[i,2*delaunay.col+1]
 	return delaunay,delVectors
 
 def delaunayPeriodicAngularSort(packing): #stripped back version for large packigns and stuff
@@ -55,7 +56,7 @@ def writeCPShortSimple(connectivity, N,loc,name):
 <CPdata>
 	<circlepacking name="{name}.p">\n"""
 
-	with open(f'./{N}/{loc}/{name}-cpfile.xmd', "w") as f:
+	with open(f'{loc}/{name}-cpfile.xmd', "w") as f:
 		f.write (blob)
 		f.write('NODECOUNT: {:d}\n'.format(N))
 		f.write('FLOWERS:\n')
@@ -72,49 +73,41 @@ def writeCPShortSimple(connectivity, N,loc,name):
 </CP_Scriptfile>
 		""")
 
+def writePackingToCP(n,packingPath,cpPath,name,index,phi):
+	try:
+		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
+		p.load(f'{packingPath}/{name}{phi}-{index}')
+	except:
+		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
+		p.setRandomPositions()
+		p.setLogNormalRadii(polyDispersity='0.2')
+		p.setPhi(np.quad(phi))
+	p.minimizeFIRE('1e-20')
+	p.save(f'{packingPath}/{name}{phi}-{index}',overwrite=True)
+	p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
+	data = delaunayPeriodicAngularSort(p)
+	writeCPShortSimple(data, p.getNumParticles(),cpPath,f'{name}{phi}-{packno}')
+
 if __name__ == '__main__':
 	n=int(sys.argv[1]) #first command is number of particles
 	name = str(sys.argv[2])
 	try:
-		phi=np.quad(sys.argv[4])
+		phi=str(sys.argv[3])
 	except:
-		phi=np.quad('.915')
+		'.915'
 	try:
-		numPackings= int(sys.argv[3])
-		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
-		for packno in range(numPackings):
-			try:
-				p.load(f'{n}/seedPackings(posMin)/{name}-{packno}')
-			except:
-				p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
-				p.setRandomPositions()
-				p.setLogNormalRadii(polyDispersity='0.2')
-				p.setPhi(phi)
-			p.minimizeFIRE('1e-20')
-			p.save(f'{n}/seedPackings(posMin)/{name}-{packno}',overwrite=True)
-			p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
-			data = delaunayPeriodicAngularSort(p)
-#			print(np.size(data))
-#			p.draw2DPacking()
-#			p.draw2DNetwork(p.delaunayNeighbors())
-#			plt.show()
-#			plt.clf()
-			writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',f'{name}-{packno}')
-#			print(packno)
+		numPackings= int(sys.argv[4])
 	except:
-		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=1, numParticles=n)
-		try:
-			p.load(f'{n}/seedPackings(posMin)/{name}')
-		except:
-			p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=1, numParticles=n)
-			p.setRandomPositions()
-			p.setLogNormalRadii(polyDispersity='0.2')
-			p.setPhi(phi)
-		p.minimizeFIRE('1e-20')
-		p.draw2DPacking()
-#		p.draw2DNetwork(p.getDelaunayNeighbors())
-		plt.show()
-		p.save(f'{n}/seedPackings(posMin)/{name}',overwrite=True)
-		p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
-		data = delaunayPeriodicAngularSort(p)
-		writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',f'{name}')
+		numPackings= 0
+	try:
+		i=int(sys.argv[5])
+	except:
+		i='0'
+	packingPath=f'../idealPackingLibrary/{n}/seedPackings(posMin)'
+	cpPath=f'../idealPackingLibrary/{n}/cpInputs'
+	if(numPackings>1):
+		for packno in range(numPackings):
+			writePackingToCP(n,packingPath,cpPath,name,packno,phi)
+	else:
+		writePackingToCP(n,packingPath,cpPath,name,i,phi)
+
