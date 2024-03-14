@@ -15,8 +15,6 @@ def GofR(packing):
 	N=packing.getNumParticles()
 	distance=packing.getDistances().astype(float)
 	distance=distance[distance!=0]
-#	print(distance)
-#	radii=packing.getRadii().astype(float)
 	Gee, Arr= np.histogram(distance,bins=N,density=True)
 	Arr2= np.array([(Arr[i]+Arr[i+1])/2 for i in range(len(Arr)-1)])
 	return Arr2,Gee
@@ -52,7 +50,7 @@ def loadPack(directory,deviceNumber=0): #Loads packing from directory into p and
 	p=pcp.Packing(deviceNumber=0)
 	p.load(directory)
 	try:
-		lv=np.loadtxt(f'{directory}/latticeVectors.dat')
+		lv = np.loadtxt(f"{directory}/latticeVectors.dat")
 	except:
 		lv=np.array([[1,0],[0,1]])
 	lv1Norm=lv[0]/np.sqrt(np.dot(lv[0],lv[0]))
@@ -61,12 +59,11 @@ def loadPack(directory,deviceNumber=0): #Loads packing from directory into p and
 	p.setLatticeVectors(newVec)
 	p.setPositions(np.dot(p.getPositions(),rotationMatrix))
 	p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
-#	p.minimizeFIRE('1e-20')
 	return p
 
 def getTauK(directory):
 	p=loadPack(directory)
-	k=1/np.sqrt(p.getPhi()/(p.getNumParticles()*np.pi))
+	k=1/np.sqrt(p.getPhi()/ (p.getNumParticles()*np.pi))
 	try:
 		sFactors=pcp.fileIO.load2DArray(f'{directory}/unBinnedsOfK.dat',np.quad)
 	except:
@@ -117,6 +114,7 @@ if __name__ == '__main__':
 	plt.errorbar(nArray,posTriangTau,yerr=posTriangTauStd,linestyle='-',marker='x',color=posCPColor,capsize=4,alpha=.8)
 	plt.errorbar(nArray,posRadTriangTau,yerr=posRadTriangTauStd,linestyle='-',marker='+',color=posRadCPColor,capsize=4,alpha=.8)
 	plt.loglog(crysN,crysTau,'-o',color=[.3,.3,.3])
+	plt.ylim([4e-2,8e+3])
 	plt.xlabel('$N$',size='xx-large')
 	plt.ylabel("$\\tau$",size='xx-large')
 	plt.tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
@@ -124,6 +122,15 @@ if __name__ == '__main__':
 	plt.tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')
 	plt.tick_params(axis='y',which='minor',direction='in',length=5)
 	plt.tight_layout()
+	plt.text(64, 200,'hex crystal',fontsize='x-large',rotation=12)
+	plt.text(64, 2,'pos. minimized',fontsize='large',color=posColor,rotation=5)
+	plt.text(256, 2,'pos. minimized & triangulated',fontsize='large',color=posCPColor,rotation=5)
+	plt.text(64,4.5e-1,'pos.+rad. minimized',fontsize='large',color=posRadColor,rotation=355,va='top')
+	plt.text(256,4.5e-1, 'pos.+rad. minimized & triangulated',fontsize='large',color=posRadCPColor,rotation=355,va='top')
 	plt.savefig('../idealPackingLibrary/figures/tauVsN.png')
 	plt.savefig('../idealPackingLibrary/figures/tauVsN.pdf')
+	plt.yscale('linear')
+	plt.ylim([0,1.8])
+	plt.savefig('../idealPackingLibrary/figures/tauVsNLogLin.png')
+	plt.savefig('../idealPackingLibrary/figures/tauVsNLogLin.pdf')
 	plt.show()

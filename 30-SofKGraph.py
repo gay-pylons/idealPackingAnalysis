@@ -29,6 +29,7 @@ for n in nArray:
 	packingDirs= [f'{directory}-{i}/isostatic' for i in range(10)]
 	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=False)
 	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
+	print(cIt)
 	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posColor,alpha=.5,fillstyle=None)
 	cIt+=1
 cIt=0

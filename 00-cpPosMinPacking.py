@@ -19,17 +19,21 @@ import scipy.sparse
 
 #returns delaunay triangulation vectors
 def delaunayVectors(packing): #in future: unite delaunayPASort and delaunayVectors (single sweep)
-	longVectors=packing.getContactVectors(gap=np.quad(.3).astype(float)).tocsr()
-	try:
-		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors(radical=True))
-		print('radical success dude!')
-	except:
-		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors())
-		print('radical failure dude!')
+	longVectors=packing.getContactVectors(gap=np.quad(np.sqrt(2))).astype(float).tocsr() #.3 is rough metric: may need to increase for lower density
+# =============================================================================
+# 	try:
+# 		rDelaunay=packing.delaunayNeighbors(radical=True)
+# 		delaunay=scipy.sparse.coo_matrix(rDelaunay)
+# 		print('radical success dude!')
+# 	except:
+# =============================================================================
+	rDelaunay=packing.delaunayNeighbors()
+	delaunay=scipy.sparse.coo_matrix(rDelaunay)
+	print('radical failure dude!')
 	delVectors=scipy.sparse.csr_matrix((packing.getNumParticles(),2*packing.getNumParticles()), dtype=float)
 	delVectors[delaunay.row,2*delaunay.col]=longVectors[delaunay.row,2*delaunay.col]
-	delVectors[i,2*delaunay.col+1]=longVectors[i,2*delaunay.col+1]
-	return delaunay,delVectors
+	delVectors[delaunay.row,2*delaunay.col+1]=longVectors[delaunay.row,2*delaunay.col+1]
+	return rDelaunay,delVectors
 
 def delaunayPeriodicAngularSort(packing): #stripped back version for large packigns and stuff
 	contacts,vecList=delaunayVectors(packing)
@@ -83,10 +87,15 @@ def writePackingToCP(n,packingPath,cpPath,name,index,phi):
 		p.setLogNormalRadii(polyDispersity='0.2')
 		p.setPhi(np.quad(phi))
 	p.minimizeFIRE('1e-20')
+# =============================================================================
+# 	p.draw2DPacking()
+# 	plt.show()
+# 	plt.clf()
+# =============================================================================
 	p.save(f'{packingPath}/{name}{phi}-{index}',overwrite=True)
 	p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
 	data = delaunayPeriodicAngularSort(p)
-	writeCPShortSimple(data, p.getNumParticles(),cpPath,f'{name}{phi}-{packno}')
+	writeCPShortSimple(data, p.getNumParticles(),cpPath,f'{name}{phi}-{index}')
 
 if __name__ == '__main__':
 	n=int(sys.argv[1]) #first command is number of particles
@@ -94,7 +103,7 @@ if __name__ == '__main__':
 	try:
 		phi=str(sys.argv[3])
 	except:
-		'.915'
+		phi='.915'
 	try:
 		numPackings= int(sys.argv[4])
 	except:
@@ -105,7 +114,7 @@ if __name__ == '__main__':
 		i='0'
 	packingPath=f'../idealPackingLibrary/{n}/seedPackings(posMin)'
 	cpPath=f'../idealPackingLibrary/{n}/cpInputs'
-	if(numPackings>1):
+	if numPackings>1:
 		for packno in range(numPackings):
 			writePackingToCP(n,packingPath,cpPath,name,packno,phi)
 	else:

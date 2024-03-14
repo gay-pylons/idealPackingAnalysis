@@ -6,7 +6,7 @@ list of figure plot colors to have single list
 @author: violalum
 """
 nList=[64,128,256,512,1024,2048,4096,8192,16384]
-markerList=['1','s','p','v','*','+','o']
+markerList=['1','s','p','v','*','+','o','2']
 posColor=[1,.6,.4]
 posRadColor=[.5,.6,.8]
 posTriangColor=[.05,.4,.35]

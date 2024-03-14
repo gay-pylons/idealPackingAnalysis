@@ -13,6 +13,7 @@ import pyCudaPacking as pcp
 import rigidpy as rp
 import networkx as nx
 import matplotlib.pyplot as plt
+import scipy
 
 def writeCPShort(connectivity, N,loc,name):
 	blob = f"""<?xml version="1.0"?>
@@ -82,17 +83,19 @@ def PeriodicAngularSort(coordinates, bonds, basis):#-np.transpose(vex))
 	return sites, angles
 
 def delaunayVectors(packing): #in future: unite delaunayPASort and delaunayVectors (single sweep)
-	longVectors=packing.getContactVectors(gap=np.quad(.3).astype(float).tocsr()
+	longVectors=packing.getContactVectors(gap=np.quad(.3)).astype(float).tocsr() #.3 is rough metric: may need to increase for lower density
 	try:
-		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors(radical=True))
-		print('radical success dude!')
+		rDelaunay=packing.delaunayNeighbors(radical=True)
+		delaunay=scipy.sparse.coo_matrix(rDelaunay)
+		print('radical=True')
 	except:
-		delaunay=scipy.sparse.coo_matrix(packing.delaunayNeighbors())
-		print('radical failure dude!')
+		rDelaunay=packing.delaunayNeighbors()
+		delaunay=scipy.sparse.coo_matrix(rDelaunay)
+		print('radical=False')
 	delVectors=scipy.sparse.csr_matrix((packing.getNumParticles(),2*packing.getNumParticles()), dtype=float)
 	delVectors[delaunay.row,2*delaunay.col]=longVectors[delaunay.row,2*delaunay.col]
-	delVectors[i,2*delaunay.col+1]=longVectors[i,2*delaunay.col+1]
-	return delaunay,delVectors
+	delVectors[delaunay.row,2*delaunay.col+1]=longVectors[delaunay.row,2*delaunay.col+1]
+	return rDelaunay,delVectors
 
 def delaunayPeriodicAngularSort(packing): #stripped back version for large packigns and stuff
 	contacts,vecList=delaunayVectors(packing)
@@ -140,16 +143,18 @@ def writePackingToCP(n,packingPath,cpPath,name,index,phi):
 	try:
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
 		p.load(f'{packingPath}/{name}{phi}-{index}')
+		p.setRadConstraintMoments([-2,2,4])
 	except:
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
 		p.setRandomPositions()
 		p.setLogNormalRadii(polyDispersity='0.2')
 		p.setPhi(np.quad(phi))
+		p.setRadConstraintMoments([-2,2,4])
 	p.minimizeFIRE('1e-20')
 	p.save(f'{packingPath}/{name}{phi}-{index}',overwrite=True)
 	p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
 	data = delaunayPeriodicAngularSort(p)
-	writeCPShortSimple(data, p.getNumParticles(),cpPath,f'{name}{phi}-{packno}')
+	writeCPShortSimple(data, p.getNumParticles(),cpPath,f'{name}{phi}-{index}')
 
 if __name__ == '__main__':
 	n=int(sys.argv[1]) #first command is number of particles

@@ -69,7 +69,7 @@ def colorMaprTheta2(length,angle):
 def drawBox(corner1,corner2):
 	xCoords=np.array([corner1[0],corner2[0],corner2[0],corner1[0],corner1[0]])
 	yCoords=np.array([corner1[0],corner1[0],corner2[0],corner2[0],corner1[0]])
-	plt.plot(xCoords,yCoords,'-',color=[0,0,0],linewidth=1)
+	plt.plot(xCoords,yCoords,'-',color=[0,0,0],lineWidth=1)
 
 
 def makePhi6Colors2(p):
@@ -127,7 +127,7 @@ def loadPack(p,directory): #Loads packing from directory into p and attempts to 
 if __name__ == '__main__':
 	n=1024
 	directories=['finishedPackings/posMin-1',f'finishedPackings/idealPack{n}-1','posMin/posMin-1/isostatic','radMin/radMin-1/isostatic']
-	labels=['A','B','C','D']
+	labels=['C','D','A','B']
 	for index in range(len(directories)):
 		fig, ax=plt.subplots()
 		p = pcp.Packing()
@@ -138,16 +138,16 @@ if __name__ == '__main__':
 		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=[.5,.5,.5],alpha=1,axis=ax,lineWidth=.25)
 		ax.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy',scale=np.sqrt(n))
 		ax.axis('off')
-		plt.text(.01,.02,labels[index],color='black',bbox= dict(boxstyle='square',alpha=1,faceColor=[.78,.7,.8]))
+		plt.text(.02,.04,labels[index],color='black',bbox= dict(boxStyle='square',alpha=1,faceColor=[.9,.9,.9]),fontsize=36)
 		#inset axes: based on matplotlib docs
 		x1, x2, y1, y2 = .3, .4, .3, .4 # subregion of the original image
 		axins = ax.inset_axes([0.5, 0.5, 0.5, 0.5],xlim=(x1, x2), ylim=(y1, y2), xticklabels=[], yticklabels=[])
 		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=[.5,.5,.5],alpha=1,axis=axins,xBounds=[x1,x2],yBounds=[y1,y2],lineWidth=1)
-		axins.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy',scale=np.sqrt(n)*(x2-x1)/.75,width=.04)
+		axins.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy',scale=np.sqrt(n)*(x2-x1)/.75,width=.06)
 		axins.set_aspect('equal')#'box')
 		axins.get_xaxis().set_visible(False)
 		axins.get_yaxis().set_visible(False)
-		ax.indicate_inset_zoom(axins, edgecolor=[.3,.3,.3],linewidth=2,alpha=1)
+		ax.indicate_inset_zoom(axins, edgeColor=[.3,.3,.3],lineWidth=2,alpha=1)
 #		plt.show()
 		figName=directories[index].split('/')[0]+'.'+directories[index].split('/')[1]
 		fig.tight_layout(pad=0,w_pad=0,h_pad=0)
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 # 	print(len(PHI))
 # 	print(len(RHO))
 # 	print(len(c))
-# 	plt.scatter(PHI, RHO, c=c,linewidth=0)
+# 	plt.scatter(PHI, RHO, c=c,lineWidth=0)
 # 	plt.axis('off')
 # 	plt.ylim((0,1))
 # #	plt.ylabel('rho')
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 # 	print(len(PHI))
 # 	print(len(RHO))
 # 	print(len(c))
-# 	plt.scatter(PHI, RHO, c=c,linewidth=0)
+# 	plt.scatter(PHI, RHO, c=c,lineWidth=0)
 # 	plt.axis('off')
 # 	plt.ylim((0,1))
 # #	plt.ylabel('rho')
