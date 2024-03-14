@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --partition=gpu>>___>___>___>___### Partition
-#BATCH --job-name=jumbleSweep>>___>___### Job Name
-#SBATCH --output=jumbleSweep.out>_>___### File in which to store job output
-#SBATCH --error=jumbleSweep.err>__>___### File in which to store job error messages
-#SBATCH --time=30-00:00:00>__>___>___>___### Wall clock time limit in Days-HH:MM:SS
+#SBATCH --partition=gpu				### Partition
+#BATCH --job-name=jumbleSweep		### Job Name
+#SBATCH --output=jumbleSweep.out	### File in which to store job output
+#SBATCH --error=jumbleSweep.err		### File in which to store job error messages
+#SBATCH --time=30-00:00:00			### Wall clock time limit in Days-HH:MM:SS
 #SBATCH --nodes=1
 #SBATCH --array=0-9
-#SBATCH --ntasks-per-node=1>>___### Number of tasks to be launched per Node
+#SBATCH --ntasks-per-node=1		_### Number of tasks to be launched per Node
 #SBATCH --gres=gpu:1
 #SBATCH --account=vlum>_>___### Account used for job submission
 
