@@ -21,11 +21,11 @@ posRadColor=plotColorList.posRadColor
 posTriangColor=plotColorList.posTriangColor
 posRadTriangColor=plotColorList.posRadTriangColor
 
-nArray=[64,128,256,512,1024,2048,4096,8192]#,16384,32768]
+nArray=[64,128,256,512,1024,2048,4096]#,8192]#,16384,32768]
 
 cIt=0
 for n in nArray:
-	directory=f'../idealPackingLibrary/{n}/posMin/posMin'
+	directory=f'../idealPackingLibrary/{n}/jumbledPackings/idealPack{n}'
 	packingDirs= [f'{directory}-{i}/isostatic' for i in range(10)]
 	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=False)
 	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
@@ -58,16 +58,18 @@ for n in nArray:
 	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posRadTriangColor,alpha=.5,fillstyle=None)
 	cIt+=1
 cIt=0
-for n in nArray:
-	directory=f'../idealPackingLibrary/{n}/finishedPackings/posMin'
-	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
-	packingDirs= [f'{directory}-{i}' for i in range(10)]
-	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=True)
-#	print(sOfK)
-	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
-#	sOfKStd=
-	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posTriangColor,alpha=.5,fillstyle=None)
-	cIt+=1
+# =============================================================================
+# for n in nArray:
+# 	directory=f'../idealPackingLibrary/{n}/finishedPackings/posMin'
+# 	#packingDirs= [filename.path for filename in os.scandir(directory) if filename.is_dir()]
+# 	packingDirs= [f'{directory}-{i}' for i in range(10)]
+# 	sOfK=idealGlass.computeAverageSofK(packingDirs,latticeVectors=True)
+# #	print(sOfK)
+# 	sOfKAvg=gmean(np.array(sOfK).astype(float),axis=0)
+# #	sOfKStd=
+# 	plt.loglog(sOfKAvg.T[0].astype(float)/np.sqrt(n),sOfKAvg.T[1].astype(float)*np.sqrt(n),markerList[cIt],color=posTriangColor,alpha=.5,fillstyle=None)
+# 	cIt+=1
+# =============================================================================
 
 plt.tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 plt.tick_params(axis='x',which='minor',direction='inout',length=10)

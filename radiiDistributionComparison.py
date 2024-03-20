@@ -69,39 +69,48 @@ for i in range(1,maxIndex):
 	p.load(f'../idealPackingLibrary/{n}/posMin/{filename}-{i}')
 	p.setPhi(np.mean(phi))
 	posRadii.append(p.getRadii())
-for i in range(1,maxIndex):
-	p = pcp.Packing()
-	p.load(f'../idealPackingLibrary/{n}/radMin/{filename3}-{i}')
-	p.setPhi(np.mean(phi))
-	posradRadii.append(p.getRadii())
+# =============================================================================
+# for i in range(1,maxIndex):
+# 	p = pcp.Packing()
+# 	p.load(f'../idealPackingLibrary/{n}/radMin/{filename3}-{i}')
+# 	p.setPhi(np.mean(phi))
+# 	posradRadii.append(p.getRadii())
+# =============================================================================
 normFactor=(np.mean(phi)/(n*np.pi))**.5
 poscpRadii=np.array(poscpRadii).flatten().astype(float)
 posradcpRadii=np.array(posradcpRadii).flatten().astype(float)
 posRadii=np.array(posRadii).flatten().astype(float)
-posradRadii=np.array(posradRadii).flatten().astype(float)
-disp=np.std(poscpRadii)/np.mean(poscpRadii)
+#posradRadii=np.array(posradRadii).flatten().astype(float)
+#disp=np.std(poscpRadii)/np.mean(poscpRadii)
 sig=.2
 polyX,polyY=logNormalPlot(poscpRadii,n, phi=np.mean(phi).astype(float),sigma=.2)
 polyX2,polyY2=logNormalPlot(poscpRadii,n, phi=np.mean(phi).astype(float),sigma=.25)
 
 plt.semilogy(polyX/np.mean(posRadii),polyY*np.mean(posRadii),color='black',alpha=.5)
+plt.semilogy(polyX2/np.mean(posRadii),polyY2*np.mean(posRadii),color='black',alpha=.5)
 
 hist,bin_edges=np.histogram(posradcpRadii/np.mean(posradcpRadii),density=True,bins=binno)
 bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
 plt.semilogy(bin_centers,hist,'-x',alpha=.7,color=posRadTriangColor,label='posRadTriang',fillstyle='none')
 
-hist,bin_edges=np.histogram(poscpRadii/np.mean(poscpRadii),density=True,bins=binno)
-bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-+',alpha=.7,color=posTriangColor,label='posTriang',fillstyle='none')
+# =============================================================================
+# hist,bin_edges=np.histogram(poscpRadii/np.mean(poscpRadii),density=True,bins=binno)
+# bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
+# plt.semilogy(bin_centers,hist,'-+',alpha=.7,color=posTriangColor,label='posTriang',fillstyle='none')
+# 
+# =============================================================================
+# =============================================================================
+# hist,bin_edges=np.histogram(posRadii/np.mean(posRadii),density=True,bins=binno)
+# bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
+# plt.semilogy(bin_centers,hist,'-o',alpha=.7,color=posColor,label='pos',fillstyle='none')
+# =============================================================================
 
-hist,bin_edges=np.histogram(posRadii/np.mean(posRadii),density=True,bins=binno)
-bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-o',alpha=.7,color=posColor,label='pos',fillstyle='none')
-
-hist,bin_edges=np.histogram(posradRadii/np.mean(posradRadii),density=True,bins=binno)
-bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-plt.semilogy(bin_centers,hist,'-^',alpha=.7,color=posRadColor,label='posRad',fillstyle='none')
-
+# =============================================================================
+# hist,bin_edges=np.histogram(posradRadii/np.mean(posradRadii),density=True,bins=binno)
+# bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
+# plt.semilogy(bin_centers,hist,'-^',alpha=.7,color=posRadColor,label='posRad',fillstyle='none')
+# 
+# =============================================================================
 plt.tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 plt.tick_params(axis='x',which='minor',direction='inout',length=10)
 plt.tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')

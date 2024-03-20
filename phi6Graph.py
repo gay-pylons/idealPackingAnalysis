@@ -126,8 +126,9 @@ def loadPack(p,directory): #Loads packing from directory into p and attempts to 
 
 if __name__ == '__main__':
 	n=1024
-	directories=['finishedPackings/posMin-1',f'finishedPackings/idealPack{n}-1','posMin/posMin-1/isostatic','radMin/radMin-1/isostatic']
-	labels=['C','D','A','B']
+#	directories=['finishedPackings/posMin-1',f'finishedPackings/idealPack{n}-1','posMin/posMin-1/isostatic','radMin/radMin-1/isostatic']
+	directories=[f'finishedPackings/idealPack{n}-1',f'jumbledPackings/idealPack{n}-1']
+	labels=['A','B']#['C','D','A','B']
 	for index in range(len(directories)):
 		fig, ax=plt.subplots()
 		p = pcp.Packing()

@@ -5,12 +5,10 @@
 #SBATCH --error=jumbleSweep.err		### File in which to store job error messages
 #SBATCH --time=30-00:00:00			### Wall clock time limit in Days-HH:MM:SS
 #SBATCH --nodes=1
-#SBATCH --array=0-9
 #SBATCH --ntasks-per-node=1		_### Number of tasks to be launched per Node
 #SBATCH --gres=gpu:1
 #SBATCH --account=vlum>_>___### Account used for job submission
 
 args=("$@")
 
-python3 13-JumblePressureSweep.py ${args[0]} idealPack${args[0]}-$SLURM_ARRAY_TASK_ID;
-python3 20-collectSingleModulus.py ../idealPackingLibrary/${args[0]}/jumbledPackings/idealPack${args[0]}-$SLURM_ARRAY_TASK_ID;
+python3 201-singleModulusHelper.py ${args[0]}

@@ -77,7 +77,7 @@ def getTauK(directory):
 
 if __name__ == '__main__':
 	plt.figure(figsize=(6,3.5))
-	nArray=np.array([64,128,256,512,1024,2048,4096])
+	nArray=np.array([64,128,256,512,1024,2048,4096,8192])
 	posCPColor=plotColorList.posTriangColor
 	posRadCPColor=plotColorList.posRadTriangColor
 	posColor=plotColorList.posColor
@@ -87,18 +87,10 @@ if __name__ == '__main__':
 	crysN=[]
 	
 	for n in nArray:
-		directory=f'../idealPackingLibrary/{n}/posMin/posMin'
+		directory=f'../idealPackingLibrary/{n}/jumbledPackings/idealPack{n}'
 		data=np.array([getTauR(f'{directory}-{i}') for i in range(10)])
 		posTau.append(np.mean(data))
 		posTauStd.append(np.std(data))
-		directory=f'../idealPackingLibrary/{n}/radMin/radMin'
-		data=np.array([getTauR(f'{directory}-{i}') for i in range(10)])
-		posRadTau.append(np.mean(data))
-		posRadTauStd.append(np.std(data))
-		directory=f'../idealPackingLibrary/{n}/finishedPackings/posMin'
-		data=np.array([getTauR(f'{directory}-{i}') for i in range(10)])
-		posTriangTau.append(np.mean(data))
-		posTriangTauStd.append(np.std(data))
 		directory=f'../idealPackingLibrary/{n}/finishedPackings/idealPack{n}'
 		data=np.array([getTauR(f'{directory}-{i}') for i in range(10)])
 		posRadTriangTau.append(np.mean(data))
@@ -110,11 +102,9 @@ if __name__ == '__main__':
 	posTau,posRadTau,posTriangTau,posRadTriangTau,crysTau=np.array(posTau),np.array(posRadTau),np.array(posTriangTau),np.array(posRadTriangTau),np.array(crysTau)
 	posTauStd,posRadTauStd,posTriangTauStd,posRadTriangTauStd,crysTauStd=np.array(posTauStd),np.array(posRadTauStd),np.array(posTriangTauStd),np.array(posRadTriangTauStd),np.array(crysTauStd)
 	plt.errorbar(nArray,posTau,yerr=posTauStd,linestyle='--',marker='x',color=posColor,capsize=4)
-	plt.errorbar(nArray,posRadTau,yerr=posRadTauStd,linestyle='--',marker='+',color=posRadColor,capsize=4)
 	plt.errorbar(nArray,posTriangTau,yerr=posTriangTauStd,linestyle='-',marker='x',color=posCPColor,capsize=4,alpha=.8)
-	plt.errorbar(nArray,posRadTriangTau,yerr=posRadTriangTauStd,linestyle='-',marker='+',color=posRadCPColor,capsize=4,alpha=.8)
 	plt.loglog(crysN,crysTau,'-o',color=[.3,.3,.3])
-	plt.ylim([4e-2,8e+3])
+#	plt.ylim([4e-2,8e+3])
 	plt.xlabel('$N$',size='xx-large')
 	plt.ylabel("$\\tau$",size='xx-large')
 	plt.tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
@@ -124,8 +114,8 @@ if __name__ == '__main__':
 	plt.tight_layout()
 	plt.text(64, 200,'hex crystal',fontsize='x-large',rotation=12)
 	plt.text(64, 2,'pos. minimized',fontsize='large',color=posColor,rotation=5)
-	plt.text(256, 2,'pos. minimized & triangulated',fontsize='large',color=posCPColor,rotation=5)
-	plt.text(64,4.5e-1,'pos.+rad. minimized',fontsize='large',color=posRadColor,rotation=355,va='top')
+#	plt.text(256, 2,'pos. minimized & triangulated',fontsize='large',color=posCPColor,rotation=5)
+#	plt.text(64,4.5e-1,'pos.+rad. minimized',fontsize='large',color=posRadColor,rotation=355,va='top')
 	plt.text(256,4.5e-1, 'pos.+rad. minimized & triangulated',fontsize='large',color=posRadCPColor,rotation=355,va='top')
 	plt.savefig('../idealPackingLibrary/figures/tauVsN.png')
 	plt.savefig('../idealPackingLibrary/figures/tauVsN.pdf')

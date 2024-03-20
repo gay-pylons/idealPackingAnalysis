@@ -25,7 +25,7 @@ def getCPDoS(directory,numPackings,peakPressure=np.quad('1e-2')): #direct toward
 	except:
 		states=[]
 		for packno in range(numPackings):
-			p = pcp.Packing()
+			p = pcp.Packing(deviceNumber=dev)
 			p.load(f'{directory}-{packno}')
 			lv=np.loadtxt(f'{directory}-{packno}/latticeVectors.dat')
 			p.setLatticeVectors(np.array(lv,dtype=np.quad))
@@ -46,7 +46,7 @@ def getOrdinaryDoS(directory,numPackings,pressureCutoff=np.quad('1e-8')):
 		states=[]
 		for packno in range(numPackings):
 			try:
-				p=pcp.Packing()
+				p=pcp.Packing(deviceNumber=dev)
 				p.load(f'{directory}-{packno}/isostatic')
 			except:
 				p = pcp.Packing()
@@ -72,26 +72,28 @@ if __name__ == '__main__':
 	n=int(sys.argv[1]) #first command is number of particles
 	numPackings= int(sys.argv[2])
 	binSize= int(sys.argv[3])
-	postriangdir=f'../idealPackingLibrary/{n}/finishedPackings/posMin'
+	try:
+		dev =int(sys.argv[4])
+	except:
+		dev=0
 	posradtriangdir=f'../idealPackingLibrary/{n}/finishedPackings/idealPack{n}'
-	posdir=f'../idealPackingLibrary/{n}/posMin/posMin'
-	posraddir=f'../idealPackingLibrary/{n}/radMin/radMin'
+	posdir=f'../idealPackingLibrary/{n}/jumbledPackings/idealPack{n}'
 	states=getOrdinaryDoS(posdir,numPackings)
 	print(len(states))
 	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
 	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
 	plt.loglog(bin_centers,hist,'-o',alpha=.5,color=posColor,fillstyle='none')
 	
-	states=getOrdinaryDoS(posraddir,numPackings)
-	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
-	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
-	plt.loglog(bin_centers,hist,'-^',alpha=.5,color=posRadColor,fillstyle='none')
+#	states=getOrdinaryDoS(posraddir,numPackings)
+#	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
+#	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+#	plt.loglog(bin_centers,hist,'-^',alpha=.5,color=posRadColor,fillstyle='none')
 	
-	states=getCPDoS(postriangdir,numPackings)
-	states=states.flatten()
-	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
-	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
-	plt.loglog(bin_centers,hist,'-+',alpha=.5,color=posTriangColor,fillstyle='none')
+#	states=getCPDoS(postriangdir,numPackings)
+#	states=states.flatten()
+#	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
+#	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+#	plt.loglog(bin_centers,hist,'-+',alpha=.5,color=posTriangColor,fillstyle='none')
 	
 	states=getCPDoS(posradtriangdir,numPackings)
 	states=states.flatten()
