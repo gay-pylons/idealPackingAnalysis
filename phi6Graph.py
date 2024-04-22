@@ -75,7 +75,7 @@ def drawBox(corner1,corner2):
 def makePhi6Colors2(p):
 	phi = p.getPhi()
 	p.setPhi(np.quad(.1)+phi)
-	cv = cp.delaunayVectors(p)
+	cv = cp.delaunayVectors(p).tocoo()
 	p.setPhi(phi)
 	contactVecs = cv.data.reshape(len(cv.data)//2,2).astype(float)
 	thetas = np.arctan2(contactVecs[:,1], contactVecs[:,0])
@@ -99,7 +99,7 @@ def makeSizeColors(p):
 def makePhi6Vectors(p): # pulled from idealGlass.py I think: modified to use delaunay vectors instead of contact vectors
 	phi = p.getPhi()
 	p.setPhi(np.quad(.1)+phi)
-	cv = cp.delaunayVectors(p)
+	cv = cp.delaunayVectors(p).tocoo()
 	p.setPhi(phi)
 	contactVecs = cv.data.reshape(len(cv.data)//2,2).astype(float)
 	thetas = np.arctan2(contactVecs[:,1], contactVecs[:,0])
@@ -126,8 +126,9 @@ def loadPack(p,directory): #Loads packing from directory into p and attempts to 
 
 if __name__ == '__main__':
 	n=1024
+	plt.figure(figsize=(4,4))
 #	directories=['finishedPackings/posMin-1',f'finishedPackings/idealPack{n}-1','posMin/posMin-1/isostatic','radMin/radMin-1/isostatic']
-	directories=[f'finishedPackings/idealPack{n}-1',f'jumbledPackings/idealPack{n}-1']
+	directories=[f'finishedPackings/idealPack{n}-1',f'jumbledPackings/idealPack{n}-1/isostatic']
 	labels=['A','B']#['C','D','A','B']
 	for index in range(len(directories)):
 		fig, ax=plt.subplots()
@@ -139,7 +140,7 @@ if __name__ == '__main__':
 		p.draw2DPacking(faceColor=colorMap.astype(float),edgeColor=[.5,.5,.5],alpha=1,axis=ax,lineWidth=.25)
 		ax.quiver(xy[0],xy[1],arrows[0],arrows[1],angles='xy',scale=np.sqrt(n))
 		ax.axis('off')
-		plt.text(.02,.04,labels[index],color='black',bbox= dict(boxStyle='square',alpha=1,faceColor=[.9,.9,.9]),fontsize=36)
+		plt.text(.02,.04,labels[index],color='black',bbox= dict(boxStyle='square',alpha=1,facecolor=[.9,.9,.9]),fontsize=28)
 		#inset axes: based on matplotlib docs
 		x1, x2, y1, y2 = .3, .4, .3, .4 # subregion of the original image
 		axins = ax.inset_axes([0.5, 0.5, 0.5, 0.5],xlim=(x1, x2), ylim=(y1, y2), xticklabels=[], yticklabels=[])

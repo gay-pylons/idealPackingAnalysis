@@ -19,15 +19,15 @@ import matplotlib.pyplot as plt
 
 #returns delaunay triangulation vectors
 def delaunayVectors(packing):
-	longVectors=packing.getContactVectors(gap=np.quad('.5')).astype(float).tocsr()
-	delaunay=packing.delaunayNeighbors()
+	longVectors=packing.getContactVectors(gap=np.quad(5)).astype(float).tocsr()
+	delaunay=packing.delaunayNeighbors(radical=True)
 	delVectors=scipy.sparse.csr_matrix((packing.getNumParticles(),2*packing.getNumParticles()), dtype=float)
 	for i in range(packing.getNumParticles()):
 		for j in delaunay[i].indices:
 			delVectors[i,2*j]=longVectors[i,2*j]
 			delVectors[i,2*j+1]=longVectors[i,2*j+1]
 	print(np.size(delVectors))
-	return delVectors.astype(float).tocoo()
+	return delVectors.astype(float)
 
 def delaunayPeriodicAngularSort(packing): #stripped back version for large packigns and stuff
 	contacts=packing.delaunayNeighbors()
@@ -54,7 +54,7 @@ def writeCPShortSimple(connectivity, N,loc,name):
 <CPdata>
 	<circlepacking name="{name}.p">\n"""
 
-	with open(f'./{N}/{loc}/{name}-cpfile.xmd', "w") as f:
+	with open(f'../idealPackingLibrary/{N}/{loc}/{name}-cpfile.xmd', "w") as f:
 		f.write (blob)
 		f.write('NODECOUNT: {:d}\n'.format(N))
 		f.write('FLOWERS:\n')
@@ -81,12 +81,13 @@ if __name__ == '__main__':
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
 		for packno in range(numPackings):
 			try:
-				p.load(f'{n}/poissonPoints/{name}-{packno}')
+				p.load(f'../idealPackingLibrary/{n}/poissonPoints/{name}-{packno}')
 			except:
 				p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=0, numParticles=n)
 				p.setRandomPositions()
-				p.setLogNormalRadii(polyDispersity='.2')
-			p.save(f'{n}/poissonPoints/{name}-{packno}',overwrite=True)
+				p.setMonoRadii()
+				p.setPhi(np.quad(1))
+			p.save(f'../idealPackingLibrary/{n}/poissonPoints/{name}-{packno}',overwrite=True)
 			p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
 			data=delaunayPeriodicAngularSort(p)
 			writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',f'{name}-{packno}')
@@ -94,11 +95,11 @@ if __name__ == '__main__':
 	except:
 		p = pcp.Packing(nDim=2,potentialPower=np.quad('2'),deviceNumber=1, numParticles=n)
 		try:
-			p.load(f'{n}/poissonPoints/{name}')
+			p.load(f'../idealPackingLibrary/{n}/poissonPoints/{name}')
 		except:
 			p.setRandomPositions()
 			p.setRadii(np.zeros(p.getNumParticles(),dtype=np.quad))
-		p.save(f'{n}/poissonPoints/{name}',overwrite=True)
+		p.save(f'../idealPackingLibrary/{n}/poissonPoints/{name}',overwrite=True)
 		p.setLatticeVectors(np.array([[1,0],[0,1]],dtype=np.quad))
 		data = delaunayPeriodicAngularSort(p)
 		writeCPShortSimple(data, p.getNumParticles(),f'cpInputs',f'{name}')

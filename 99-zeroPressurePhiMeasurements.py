@@ -14,7 +14,7 @@ import rigidpy as rp
 import networkx as nx
 import matplotlib.pyplot as plt
 import scipy.sparse
-import cpRandomDelaunayTriangulation as cp
+#import cpRandomDelaunayTriangulation as cp
 import plotColorList as pcl
 
 def getPhi(path):
@@ -71,7 +71,7 @@ for n in nList:
 	pos=[]
 	posRad=[]
 	for index in range(10):
-		posPath=f'../idealPackingLibrary/{n}/posMin/posMin-{index}/isostatic'
+		posPath=f'../idealPackingLibrary/{n}/jumbledPackings/idealPack{n}-{index}/isostatic'
 		phi=getPhi(posPath)
 		pos.append(phi)
 	for index in range(10):
@@ -84,6 +84,8 @@ for n in nList:
 	posRadIso.append(np.mean(np.array(posRad)))
 posIso=np.array(posIso)
 posRadIso=np.array(posRadIso)
+print(f'{np.mean(posIso)}+{np.std(posIso)}')
+print(np.mean(posRadIso))
 plt.semilogx(nList,posRadIso,'--1',label='pos rad min isostatic packing')
 plt.semilogx(nList,posIso,'--^',label='pos-min isostatic packing')
 plt.xlabel('$N$')

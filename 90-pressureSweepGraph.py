@@ -13,7 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import npquad
 import matplotlib
+import imp
 import plotColorList
+pcp=imp.load_source('pyCudaPacking','/home/violalum/Documents/code/pcpMaster/pyCudaPacking/__init__.py')
+
+
 
 def unaveragedData(directory,strEnd='pressureWalk.npz'):
 	pressureList,bulkList,shearList,contactList = [np.array([],dtype=np.quad)]*4
@@ -68,10 +72,21 @@ def getCPDoS(directory,numPackings,peakPressure=np.quad('1e-2')): #direct toward
 		return states
 	except:
 		states=[]
-		for packno in range(numPackings):
+		if numPackings > 1:
+			for packno in range(numPackings):
+				p = pcp.Packing()
+				p.load(f'{directory}-{packno}')
+				lv=np.loadtxt(f'{directory}-{packno}/latticeVectors.dat')
+				p.setLatticeVectors(np.array(lv,dtype=np.quad))
+				p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
+				p.setPhi(p.getPhi()+peakPressure-p.getPressure())
+				print(np.size(p.getContacts())/6)
+				p.minimizeFIRE('1e-20')
+				states.append(p.getOmegas())
+		else:
 			p = pcp.Packing()
-			p.load(f'{directory}-{packno}')
-			lv=np.loadtxt(f'{directory}-{packno}/latticeVectors.dat')
+			p.load(f'{directory}')
+			lv=np.loadtxt(f'{directory}/latticeVectors.dat')
 			p.setLatticeVectors(np.array(lv,dtype=np.quad))
 			p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
 			p.setPhi(p.getPhi()+peakPressure-p.getPressure())
@@ -133,30 +148,34 @@ for n in nArray:
 	sScale=1#n
 	zScale=1#n
 	Ziso=4*(1-1/n)
-	pressureList,bulkList,shearList,contactList=averagedData(f'../idealPackingLibrary/{n}/posMinPressureSweep2')
+	pressureList,bulkList,shearList,contactList=averagedData(f'../idealPackingLibrary/{n}/jumblePressureSweep')
 	axs[0].semilogx(pressureList*pScale,bulkList*bScale,markerList[cIt],alpha=.7,fillstyle='none',color=posColor, label=f'$N={n}$')#,markeredgewidth='2')
 	axs[1].loglog(pressureList*pScale,shearList*sScale,markerList[cIt],alpha=.7,fillstyle='none',color=posColor, label=f'$N={n}$')#,markeredgewidth='2')
-	pressureList,bulkList,shearList,contactList=averagedData(f'../idealPackingLibrary/{n}/radMinPressureSweep2')
-	axs[0].semilogx(pressureList*pScale,bulkList*bScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$')#,markeredgewidth='2')
-	axs[1].loglog(pressureList*pScale,shearList*sScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$')#,markeredgewidth='2')
+# =============================================================================
+# 	pressureList,bulkList,shearList,contactList=averagedData(f'../idealPackingLibrary/{n}/radMinPressureSweep2')
+# 	axs[0].semilogx(pressureList*pScale,bulkList*bScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$')#,markeredgewidth='2')
+# 	axs[1].loglog(pressureList*pScale,shearList*sScale,markerList[cIt],alpha=.7,fillstyle='none',color=posRadColor, label=f'$N={n}$')#,markeredgewidth='2')
+# =============================================================================
 	pressureList, bulkList, shearList, contactList=unaveragedData(f'../idealPackingLibrary/{n}/radCPPressureSweep')
 	pOrder=np.argsort(pressureList)
 	axs[0].semilogx(pressureList[pOrder]*pScale,bulkList[pOrder]*bScale,markerList[cIt],alpha=.7,color=posRadTriangColor,fillstyle='none')
 	axs[1].loglog(pressureList[pOrder]*pScale,shearList[pOrder]*sScale,markerList[cIt],alpha=.7,color=posRadTriangColor,fillstyle='none')
-	pressureList, bulkList, shearList, contactList=unaveragedData(f'../idealPackingLibrary/{n}/posCPPressureSweep')
-	pOrder=np.argsort(pressureList)
-	axs[0].semilogx(pressureList[pOrder]*pScale,bulkList[pOrder]*bScale,markerList[cIt],alpha=.7,color=posTriangColor,fillstyle='none')
-	axs[1].loglog(pressureList[pOrder]*pScale,shearList[pOrder]*sScale,markerList[cIt],alpha=.7,color=posTriangColor,fillstyle='none')
+# =============================================================================
+# 	pressureList, bulkList, shearList, contactList=unaveragedData(f'../idealPackingLibrary/{n}/posCPPressureSweep')
+# 	pOrder=np.argsort(pressureList)
+# 	axs[0].semilogx(pressureList[pOrder]*pScale,bulkList[pOrder]*bScale,markerList[cIt],alpha=.7,color=posTriangColor,fillstyle='none')
+# 	axs[1].loglog(pressureList[pOrder]*pScale,shearList[pOrder]*sScale,markerList[cIt],alpha=.7,color=posTriangColor,fillstyle='none')
+# =============================================================================
 f=np.load('../idealPackingLibrary/1554/hexCrystalPressureSweep/crystal-pressureWalk.npz')
 pOrder=np.argsort(f['press'])
-axs[0].semilogx(f['press'][pOrder],f['bMod'][pOrder],'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
-axs[1].loglog(f['press'][pOrder],f['sMod'][pOrder],'--',alpha=.7,fillstyle='none',color=[.3,.3,.3], label='$N=4012$')
+axs[0].semilogx(f['press'][pOrder],f['bMod'][pOrder],'-',alpha=.7,fillstyle='none',color='black',linewidth=3, label='$N=4012$')
+axs[1].loglog(f['press'][pOrder],f['sMod'][pOrder],'-',alpha=.7,fillstyle='none',color='black',linewidth=3, label='$N=4012$')
 axs[0].set_ylabel('$K/N$',fontsize='xx-large')
 axs[1].set_ylabel('$G/N$',fontsize='xx-large')
 axs[1].set_xlabel('$P$',fontsize='xx-large')
 #fig[2].set_ylabel('$(Z-Z_{iso})/N$',fontsize='xx-large')
-axs[0].set_ylim((0,3.1))
-axs[1].set_ylim((1e-4,1.5))
+axs[0].set_ylim((0,3.3))
+axs[1].set_ylim((1e-4,2))
 axs[0].set_xlim((5e-7,2e-1))
 axs[1].set_xlim((5e-7,2e-1))
 nListStr=','.join(nArray.astype(str))
@@ -165,6 +184,7 @@ plt.subplots_adjust(hspace=0)
 plt.subplots_adjust(wspace=.1)
 axs[0].tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 axs[0].tick_params(axis='x',which='minor',direction='inout',length=10)
+axs[0].set_label
 axs[1].tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 axs[1].tick_params(axis='x',which='minor',direction='inout',length=10)
 axs[0].tick_params(axis='y',which='major',direction='in',length=10,labelsize='x-large')
@@ -177,30 +197,42 @@ numPackings= 10
 binSize= 100
 postriangdir=f'../idealPackingLibrary/{n}/finishedPackings/posMin'
 posradtriangdir=f'../idealPackingLibrary/{n}/finishedPackings/idealPack{n}'
-posdir=f'../idealPackingLibrary/{n}/posMin/posMin'
+posdir=f'../idealPackingLibrary/{n}/jumbledPackings/idealPack{n}'
 posraddir=f'../idealPackingLibrary/{n}/radMin/radMin'
+crysdir='../idealPackingLibrary/4012/finishedPackings/crystal'
 states=getOrdinaryDoS(posdir,numPackings)
 print(len(states))
 hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
 bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+fig.align_ylabels(axs)
 axs[2].loglog(bin_centers,hist,f'-{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posColor,fillstyle='none')
 
-states=getOrdinaryDoS(posraddir,numPackings)
-hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
-bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
-axs[2].loglog(bin_centers,hist,f'--{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posRadColor,fillstyle='none')
+# =============================================================================
+# states=getOrdinaryDoS(posraddir,numPackings)
+# hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
+# bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+# axs[2].loglog(bin_centers,hist,f'--{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posRadColor,fillstyle='none')
+# 
+# states=getCPDoS(postriangdir,numPackings)
+# states=states.flatten()
+# hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
+# bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+# axs[2].loglog(bin_centers,hist,f'-{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posTriangColor,fillstyle='none')
+# 
+# =============================================================================
 
-states=getCPDoS(postriangdir,numPackings)
-states=states.flatten()
-hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
-bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
-axs[2].loglog(bin_centers,hist,f'-{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posTriangColor,fillstyle='none')
 
 states=getCPDoS(posradtriangdir,numPackings)
 states=states.flatten()
 hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
 bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
-axs[2].loglog(bin_centers,hist,f'--{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posRadTriangColor,fillstyle='none')
+axs[2].loglog(bin_centers,hist,f'-{markerList[np.log2(n).astype(int)-6]}',alpha=.7,color=posRadTriangColor,fillstyle='none')
+
+states=getCPDoS(crysdir,0)
+states=states.flatten()
+hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
+bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+axs[2].loglog(bin_centers,hist,'-',alpha=.7,color='black',linewidth=3,fillstyle='none')
 
 plt.tick_params(axis='x',which='major',direction='inout',length=14,labelsize='x-large')
 plt.tick_params(axis='x',which='minor',direction='inout',length=10)
@@ -212,6 +244,7 @@ plt.xlabel('$\omega$',size='xx-large')
 plt.ylabel('$D(\omega)$',size='xx-large')#.set_rotation(270)
 #axs[2].yaxis.set_label_position("right")
 #ax.yaxis.tick_right()
+#plt.title('pos moduli are PLACEHOLDER')
 
 fig.savefig('../idealPackingLibrary/figures/moduliWalkPerParticle.pdf')
 fig.savefig('../idealPackingLibrary/figures/moduliWalkPerParticle.png')

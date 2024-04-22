@@ -24,16 +24,27 @@ def getCPDoS(directory,numPackings,peakPressure=np.quad('1e-2')): #direct toward
 		return states
 	except:
 		states=[]
-		for packno in range(numPackings):
-			p = pcp.Packing(deviceNumber=dev)
-			p.load(f'{directory}-{packno}')
-			lv=np.loadtxt(f'{directory}-{packno}/latticeVectors.dat')
-			p.setLatticeVectors(np.array(lv,dtype=np.quad))
-			p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
-			p.setPhi(p.getPhi()+peakPressure-p.getPressure())
-			print(np.size(p.getContacts())/6)
-			p.minimizeFIRE('1e-20')
-			states.append(p.getOmegas())
+		if numPackings > 1:
+			for packno in range(numPackings):
+				p = pcp.Packing(deviceNumber=dev)
+				p.load(f'{directory}-{packno}')
+				lv=np.loadtxt(f'{directory}-{packno}/latticeVectors.dat')
+				p.setLatticeVectors(np.array(lv,dtype=np.quad))
+				p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
+				p.setPhi(p.getPhi()+peakPressure-p.getPressure())
+				print(np.size(p.getContacts())/6)
+				p.minimizeFIRE('1e-20')
+				states.append(p.getOmegas())
+		else:
+				p = pcp.Packing(deviceNumber=dev)
+				p.load(f'{directory}')
+				lv=np.loadtxt(f'{directory}/latticeVectors.dat')
+				p.setLatticeVectors(np.array(lv,dtype=np.quad))
+				p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
+				p.setPhi(p.getPhi()+peakPressure-p.getPressure())
+				print(np.size(p.getContacts())/6)
+				p.minimizeFIRE('1e-20')
+				states.append(p.getOmegas())
 		states=np.array(states)
 		np.savetxt(f'{directory}.DoS.xmd',states)
 		return states
@@ -76,8 +87,9 @@ if __name__ == '__main__':
 		dev =int(sys.argv[4])
 	except:
 		dev=0
-	posradtriangdir=f'../idealPackingLibrary/{n}/finishedPackings/idealPack{n}'
+	posradtriangdir=f'../idealPackingLibrary/{n}/finishedPackingsM/idealPack{n}'
 	posdir=f'../idealPackingLibrary/{n}/jumbledPackings/idealPack{n}'
+	crysdir=f'../idealPackingLibrary/4012/finishedPackings/crystal'
 	states=getOrdinaryDoS(posdir,numPackings)
 	print(len(states))
 	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
@@ -89,11 +101,11 @@ if __name__ == '__main__':
 #	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
 #	plt.loglog(bin_centers,hist,'-^',alpha=.5,color=posRadColor,fillstyle='none')
 	
-#	states=getCPDoS(postriangdir,numPackings)
-#	states=states.flatten()
-#	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
-#	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
-#	plt.loglog(bin_centers,hist,'-+',alpha=.5,color=posTriangColor,fillstyle='none')
+	states=getCPDoS(crysdir,numPackings)
+	states=states.flatten()
+	hist, bin_edges=np.histogram(states,density=True,bins=np.unique(np.hstack([np.sort(states)[::binSize], np.max(states)])))
+	bin_centers= np.array([np.sqrt(bin_edges[i]*bin_edges[i+1]) for i in range(len(bin_edges)-1)])
+	plt.loglog(bin_centers,hist,'-+',alpha=.5,color=[.3,.3,.3],fillstyle='none')
 	
 	states=getCPDoS(posradtriangdir,numPackings)
 	states=states.flatten()
