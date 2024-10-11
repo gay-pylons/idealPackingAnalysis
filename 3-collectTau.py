@@ -2,13 +2,13 @@ from scipy.stats import gmean
 import numpy as np
 import os
 import matplotlib
-import imp
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import npquad
 import matplotlib
 import plotColorList
-pcp=imp.load_source('pyCudaPacking','/home/violalum/Documents/code/pcpMaster/pyCudaPacking/__init__.py')
+from importlib.machinery import SourceFileLoader
+pcp = SourceFileLoader("pyCudaPacking","/home/violalum/Documents/code/pcpMaster/pyCudaPacking/__init__.py").load_module()
 #from scipy.stats import gmean 
 
 def GofR(packing):
@@ -112,13 +112,12 @@ if __name__ == '__main__':
 	plt.tick_params(axis='y',which='major',direction='in',length=10,labelsize='xx-large')
 	plt.tick_params(axis='y',which='minor',direction='in',length=5)
 	plt.tight_layout()
-	plt.text(64, 200,'hex crystal',fontsize='xx-large',rotation=30)
+	plt.text(64, 200,'hex crystal',fontsize='xx-large',rotation=25)
 	plt.text(64, 1,'pos. minimized',fontsize='x-large',color=posColor,rotation=0)
 #	plt.text(256, 2,'pos. minimized & triangulated',fontsize='large',color=posCPColor,rotation=5)
 #	plt.text(64,4.5e-1,'pos.+rad. minimized',fontsize='large',color=posRadColor,rotation=355,va='top')
 	plt.text(64,4e-1, 'triangulated',fontsize='x-large',color=posRadCPColor,va='top')
-	plt.gcf().text(.1,.1,'D',color='black',bbox= dict(boxStyle='square',alpha=1,facecolor=[.9,.9,.9]),fontsize=26)
-#	plt.gcf().text(0.1, 0.1, 'D', fontsize=16)
+	plt.gcf().text(.31,.87,'D',color='black',fontsize=23)#,bbox= dict(boxstyle='square',alpha=.7,facecolor=[.85,.85,.85],linewidth=0))
 	plt.savefig('../idealPackingLibrary/figures/tauVsN.png')
 	plt.savefig('../idealPackingLibrary/figures/tauVsN.pdf')
 # =============================================================================

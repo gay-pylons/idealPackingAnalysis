@@ -9,10 +9,11 @@ import matplotlib
 matplotlib.use('Agg')
 import numpy as np
 import pyCudaPacking as pcp
-from modRatioVsN import moduliPerParticlePressure
+from deprecated.modRatioVsN import moduliPerParticlePressure
 from matplotlib import pyplot as plt
 import scipy
 import plotColorList
+from packingConstruction import makeTriangulationFromPacking as cp
 
 markerList=plotColorList.markerList
 posColor=plotColorList.posColor
@@ -72,7 +73,7 @@ for i in range(1,maxIndex):
 	posRadii.append(p.getRadii())
 for i in range(1,maxIndex):
 	p = pcp.Packing()
-	p.load(f'../idealPackingLibrary/{n}/seedPackings(radMin)/{filename2}-{i}')
+	p.load(f'../idealPackingLibrary/{n}/seedPackings(posRadMin)/{filename2}-{i}')
 	p.setPhi(np.mean(phi))
 	posradRadii.append(p.getRadii())
 normFactor=(np.mean(phi)/(n*np.pi))**.5
@@ -99,12 +100,10 @@ hist,bin_edges=np.histogram(posradcpRadii/np.mean(posradcpRadii),density=True,bi
 bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
 plt.semilogy(bin_centers,hist,'-^',alpha=.7,color=posRadTriangColor,label='posRadTriang',fillstyle='none')
 
-# =============================================================================
-# hist,bin_edges=np.histogram(poscpRadii/np.mean(poscpRadii),density=True,bins=binno)
-# bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
-# plt.semilogy(bin_centers,hist,'-+',alpha=.7,color=posTriangColor,label='posTriang',fillstyle='none')
-# 
-# =============================================================================
+hist,bin_edges=np.histogram(poscpRadii/np.mean(poscpRadii),density=True,bins=binno)
+bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
+plt.semilogy(bin_centers,hist,'-+',alpha=.7,color=posTriangColor,label='posTriang',fillstyle='none')
+
 # =============================================================================
 # hist,bin_edges=np.histogram(posRadii/np.mean(posRadii),density=True,bins=binno)
 # bin_centers= np.array([(bin_edges[i]+bin_edges[i+1])/2 for i in range(len(bin_edges)-1)])
@@ -123,7 +122,7 @@ plt.tight_layout()
 #          fancybox=True, shadow=True, ncol=10)
 #plt.legend()
 #plt.title(f'{maxIndex} systems of {n} particles, pos->CirclePack')
-plt.gcf().text(.05,.1,'E',color='black',bbox= dict(boxStyle='square',alpha=1,facecolor=[.9,.9,.9]),fontsize=26)
+plt.gcf().text(.95,.9,'E',color='black',fontsize=23)#,bbox= dict(boxstyle='square',alpha=.7,facecolor=[.85,.85,.85],linewidth=0))
 plt.xlim(0,2.2)
 plt.ylim(9e-5,10)
 plt.text(1.4,2,'26% polydispersity',fontsize='xx-large',color='black',alpha=1,va='top',rotation=-20)

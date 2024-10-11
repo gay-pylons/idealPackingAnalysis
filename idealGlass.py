@@ -161,27 +161,24 @@ def computeAverageSofK(packingList, kbin = None, deviceNumber=2, latticeVectors=
 	structureFactors = []
 	for packingDir in packingList:
 		meanRadius=np.mean(np.loadtxt(f'{packingDir}/radii.dat')).astype(float)
-		try:
-			sFactors=pcp.fileIO.load2DArray(f'{packingDir}/{len(kbin)}sOfK.dat',np.quad)
-		except:
-			p = pcp.Packing(deviceNumber=deviceNumber)
-			p.load(packingDir)
-			if(wibbled):
-				pos = p.getPositions()
-				meanRad = np.mean(p.getRadii())
-				scale = np.quad('.1') # Or whatever scale you want to set for the displacements
-				p.setPositions(pos + pcp.quadMath.gaussianRandomQuad(shape=pos.shape) * meanRad * scale)
-				plt.clf()
-				p.draw2DPacking()
-				plt.savefig('../idealPackingLibrary/figures/wibbledPack.png')
-			if(latticeVectors):
-				p.setLatticeVectors(pcp.fileIO.load2DArray( f'{packingDir}/latticeVectors.dat' , dtype=np.quad))
-				ilv = p.getInverseLatticeVectors()
-				lvPos = np.dot(ilv, p.getPositions().T).T
-				p.setPositions(lvPos.copy())
-			sFactors=struct.computeBinnedStructureFactor(p, kbin).astype(float)
-			pcp.fileIO.save2DArray(f'{packingDir}/{len(kbin)}sOfK.dat',sFactors)
-		print(sFactors[:,1])
-		sFactors=sFactors*np.array([meanRadius,2*np.pi/meanRadius])
-		structureFactors.append(sFactors)
+		p = pcp.Packing(deviceNumber=deviceNumber)
+		p.load(packingDir)
+		if(wibbled):
+			pos = p.getPositions()
+			meanRad = np.mean(p.getRadii())
+			scale = np.quad('.1') # Or whatever scale you want to set for the displacements
+			p.setPositions(pos + pcp.quadMath.gaussianRandomQuad(shape=pos.shape) * meanRad * scale)
+			plt.clf()
+			p.draw2DPacking()
+			plt.savefig('../idealPackingLibrary/figures/wibbledPack.png')
+		if(latticeVectors):
+			p.setLatticeVectors(pcp.fileIO.load2DArray( f'{packingDir}/latticeVectors.dat' , dtype=np.quad))
+			ilv = p.getInverseLatticeVectors()
+			lvPos = np.dot(ilv, p.getPositions().T).T
+			p.setPositions(lvPos.copy())
+		sFactors=struct.computeBinnedStructureFactor(p, kbin).astype(float)
+		pcp.fileIO.save2DArray(f'{packingDir}/{len(kbin)}sOfK.dat',sFactors)
+	print(sFactors[:,1])
+	sFactors=sFactors*np.array([meanRadius,2*np.pi/meanRadius])
+	structureFactors.append(sFactors)
 	return structureFactors

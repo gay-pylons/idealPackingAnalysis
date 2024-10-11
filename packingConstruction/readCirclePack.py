@@ -176,50 +176,38 @@ def sortIndicesByRadii(packing):
 def readLatVecs(lvPath):
 	file= open(lvPath,'r')
 	lines=file.readlines()
-	b1=np.array(lines[1].split('= ')[1].split('i')[0].split(' + ')).astype(float)
-	b2=np.array(lines[6].split('= ')[1].split('i')[0].split(' + ')).astype(float)
-	lv=np.transpose(np.array([b1,b2]))
+	b1=np.array(lines[1].split('= ')[1].split('i')[0].split(' + '))
+	b2=np.array(lines[6].split('= ')[1].split('i')[0].split(' + '))
+	print(b1)
+	print(b2)
+	lv=np.transpose(np.array([[np.quad(b1[0]),np.quad(b1[1])],[np.quad(b2[0]),np.quad(b2[1])]]))
 	if lv[0,0] < 0: # check to insure positive lattice vectors: only matters for 
 		return -lv
 	else:
 		return lv
 
+def loadCirclePackIntoPcp(directory):
+	latVex=readLatVecs(f'../../idealPackingLibrary/{n}/latVecs/{directory}-latVecs.dat').astype(np.quad)
+	p=pcp.Packing(nDim=2,numParticles=n,potentialPower=np.quad('2'),deviceNumber=1)
+	p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
+	p.setLatticeVectors(latVex)
+	readCPOutput(p,f'../../idealPackingLibrary/{n}/cpOutputs/{directory}.p-dc',n,latVex)
+	print(f'phi={p.getPhi()}')
+	print(f'z={np.size(p.getContacts())/n}')
+	p.save(f"../../idealPackingLibrary/{n}/finishedPackings/{directory}",overwrite=True)
+	pcp.fileIO.save2DArray(f"../../idealPackingLibrary/{n}/finishedPackings/{directory}/latticeVectors.dat",p.getLatticeVectors())
+
 # In[read CirclePack]:
 if __name__ == '__main__':
 	n=int(sys.argv[1])
 	packing=str(sys.argv[2])
-	try: #processes a batch sharig
+	try:
 		batchMax=int(sys.argv[3])
 	except:
 		batchMax=-1
 	if(batchMax>=1):
 		for packno in range(batchMax):
 			packN = f"{packing}-{packno}"
-			latVex=readLatVecs(f'../idealPackingLibrary/{n}/latVecs/{packN}-latVecs.dat').astype(np.quad)
-			p=pcp.Packing(nDim=2,numParticles=n,potentialPower=np.quad('2'),deviceNumber=1)
-			p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
-			p.setLatticeVectors(latVex)
-			readCPOutput(p,f'../idealPackingLibrary/{n}/cpOutputs/{packN}.p-dc',n,latVex)
-			p.minimizeFIRE('1e-20')
-			print(np.size(p.getContacts())/n)
-			#p.draw2DPacking()
-#			plt.show()
-			p.save(f"../idealPackingLibrary/{n}/finishedPackings/{packN}",overwrite=True)
-#			p.draw2DPacking()
-#			plt.show()
-			np.savetxt(f"../idealPackingLibrary/{n}/finishedPackings/{packN}/latticeVectors.dat",p.getLatticeVectors())
+			loadCirclePackIntoPcp(packN)
 	else:
-		latVex=readLatVecs(f'../idealPackingLibrary/{n}/latVecs/{packing}-latVecs.dat').astype(np.quad)
-		p=pcp.Packing(nDim=2,numParticles=n,potentialPower=np.quad('2'),deviceNumber=1)
-		p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
-		p.setLatticeVectors(latVex)
-		readCPOutput(p,f'../idealPackingLibrary/{n}/cpOutputs/{packing}.p-dc',n,latVex)
-#		p.minimizeFIRE('1e-20')
-		print(p.getPhi())
-		print(np.size(p.getContacts())/n)
-#		print(p.getPressure())
-#		print(p.getMaxUnbalancedForce())
-		p.save(f"../idealPackingLibrary/{n}/finishedPackings/{packing}",overwrite=True)
-		np.savetxt(f"../idealPackingLibrary/{n}/finishedPackings/{packing}/latticeVectors.dat",p.getLatticeVectors())
-		p.draw2DPacking()
-		plt.show()
+		loadCirclePackIntoPcp(packing)

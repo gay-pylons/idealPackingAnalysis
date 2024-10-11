@@ -15,7 +15,7 @@ import rigidpy as rp
 import networkx as nx
 import matplotlib.pyplot as plt
 import scipy.sparse
-import cpPoissonPoints as cp
+from packingConstruction import makeTriangulationFromPacking as cp
 import plotColorList as pcl
 
 def delaunayVectors(packing):
@@ -222,7 +222,7 @@ if __name__ == '__main__':
 		cerror, cbins, rplots =binCorrelations(path,nbins=nbins)
 		plt.errorbar(rplots,np.abs(cbins),yerr=cerror,fmt=pcl.markerList[cIt],color=pcl.posRadTriangColor,capsize=4,linewidth=1,alpha=.7,fillstyle='none')
 		cIt+=1
-
+	plt.plot(np.array([1,100]),np.array([1,1]),color=[.3,.3,.3])
 # =============================================================================
 # 	cIt=0
 # 	for n in nList:
@@ -240,10 +240,10 @@ if __name__ == '__main__':
 	plt.xlabel(r'$r_{ij}/ \left<r\right>$',size=22)
 	plt.ylabel(r'$|C_6\left(r_{ij}/ \left<r\right>\right)|$',size=22)
 	plt.yscale('log')
-	plt.ylim([1e-4,1e-0])
+	plt.ylim([1e-4,7e-0])
 #	plt.xscale('log')
 	plt.tight_layout()
-	plt.gcf().text(.1,.1,'C',color='black',bbox= dict(boxstyle='square',alpha=1,facecolor=[.9,.9,.9]),fontsize=26)
+	plt.gcf().text(.88,.87,'C',color='black',fontsize=23)#,bbox= dict(boxstyle='square',alpha=.7,facecolor=[.85,.85,.85],linewidth=0))
 	plt.savefig(f'../idealPackingLibrary/figures/AvgCorrelations.png')
 	plt.savefig(f'../idealPackingLibrary/figures/AvgCorrelations.pdf')
 

@@ -26,7 +26,7 @@ def getCPDoS(directory,numPackings,peakPressure=np.quad('1e-2')): #direct toward
 		states=[]
 		if numPackings > 1:
 			for packno in range(numPackings):
-				p = pcp.Packing(deviceNumber=dev)
+				p = pcp.Packing()
 				p.load(f'{directory}-{packno}')
 				lv=np.loadtxt(f'{directory}-{packno}/latticeVectors.dat')
 				p.setLatticeVectors(np.array(lv,dtype=np.quad))
@@ -36,15 +36,15 @@ def getCPDoS(directory,numPackings,peakPressure=np.quad('1e-2')): #direct toward
 				p.minimizeFIRE('1e-20')
 				states.append(p.getOmegas())
 		else:
-				p = pcp.Packing(deviceNumber=dev)
-				p.load(f'{directory}')
-				lv=np.loadtxt(f'{directory}/latticeVectors.dat')
-				p.setLatticeVectors(np.array(lv,dtype=np.quad))
-				p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
-				p.setPhi(p.getPhi()+peakPressure-p.getPressure())
-				print(np.size(p.getContacts())/6)
-				p.minimizeFIRE('1e-20')
-				states.append(p.getOmegas())
+			p = pcp.Packing()
+			p.load(f'{directory}')
+			lv=np.loadtxt(f'{directory}/latticeVectors.dat')
+			p.setLatticeVectors(np.array(lv,dtype=np.quad))
+			p.setGeometryType(pcp.enums.geometryEnum.latticeVectors)
+			p.setPhi(p.getPhi()+peakPressure-p.getPressure())
+			print(np.size(p.getContacts())/6)
+			p.minimizeFIRE('1e-20')
+			states.append(p.getOmegas())
 		states=np.array(states)
 		np.savetxt(f'{directory}.DoS.xmd',states)
 		return states
@@ -57,7 +57,7 @@ def getOrdinaryDoS(directory,numPackings,pressureCutoff=np.quad('1e-8')):
 		states=[]
 		for packno in range(numPackings):
 			try:
-				p=pcp.Packing(deviceNumber=dev)
+				p=pcp.Packing()
 				p.load(f'{directory}-{packno}/isostatic')
 			except:
 				p = pcp.Packing()
